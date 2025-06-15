@@ -63,7 +63,7 @@ export default async function handler(req, res) {
 
     console.log(" --------- history start --------- ");
     const prediction2 = await getHistory(prediction.prompt_id);
-    console.log("--------- history end --------- ", prediction2);
+    console.log("--------- history end --------- ");
 
     // const prediction2 = await response2.json();
 

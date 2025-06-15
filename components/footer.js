@@ -5,10 +5,11 @@ import {
   Info as InfoIcon,
   XCircle as StartOverIcon,
   Settings as SettingsIcon,
+  MinusSquare as IconSquareMenu,
 } from "lucide-react";
 import Link from "next/link";
 
-export default function Footer({ events, startOver, handleImageDropped, settingPrompt }) {
+export default function Footer({ events, startOver, handleImageDropped, settingPrompt, settingPromptOpen }) {
 
   return (
     <footer className="w-full my-3">
@@ -29,7 +30,12 @@ export default function Footer({ events, startOver, handleImageDropped, settingP
 
         <button className="lil-button" onClick={settingPrompt}>
           <SettingsIcon className="icon" />
-          設定
+          人物設定
+        </button>
+
+        <button className="lil-button" onClick={settingPromptOpen}>
+          <IconSquareMenu className="icon" />
+          Prompt
         </button>
 
         {events.length > 1 && (

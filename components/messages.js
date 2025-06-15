@@ -35,7 +35,7 @@ export default function Messages({ events, isProcessing, onUndo, downloadImage})
                   src={ev.image}
                 />
 
-                {onUndo && index > 0 && index === events.length - 1 && (
+                {onUndo && index >= 0 && (
                   <div className="mt-2 text-right">
                     <button
                       className="lil-button"

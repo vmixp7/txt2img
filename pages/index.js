@@ -10,32 +10,31 @@ import 'bootstrap/dist/css/bootstrap.css';
 import ReactGA from 'react-ga4';
 import Script from 'next/script'
 import { LogOut as LogoutIcon } from "lucide-react";
-
 import Footer from "components/footer";
-
 import prepareImageFileForUpload from "lib/prepare-image-file-for-upload";
 import { getRandomSeed } from "lib/seeds";
 import { Input, Button, Modal, ModalBody, ModalFooter, Container, Row, Col } from "reactstrap";
 import getConfig from 'next/config'
-const { publicRuntimeConfig } = getConfig()
-
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+import { replace } from "lodash";
 
 export const appName = "AI美女產生器";
 export const appSubtitle = "輸入中文或英文描敘,用逗號分隔,創作一個自己的AI女友";
 export const appMetaDescription = "AI, text2image, txt2img, word to image, art, stable diffustion, sexy girl, beautiful girl, ai girl, genetate, chinese, 中文, 中文文生圖, 文字產生圖片, 文字產生美女圖, AI美女, AI女友";
 
-export default function Home(props) {
+const { publicRuntimeConfig } = getConfig()
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+export default function Home(props) {
   const [events, setEvents] = useState([]);
   const [predictions, setPredictions] = useState([]);
   const [error, setError] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [seed] = useState(getRandomSeed());
-  const [initialPrompt, setInitialPrompt] = useState(seed.prompt);
+  const [initialPrompt, setInitialPrompt] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
   const [settingOpen, setSettingOpen] = useState(false);
+  const [promptOpen, setPromptOpen] = useState(false);
   const [allow] = useState(false);
   const [dataLayer, setDataLayer] = useState([]);
   const [prevPromptTW, setPrevPromptTW] = useState("");
@@ -44,9 +43,11 @@ export default function Home(props) {
     shape: "1",
     checkpointModel: "majicmixRealistic_v4",
     lora: "none",
+    setPrompt: "",
   });
   const [selected, setSelected] = useState("none");
-  const loraGirls = ['iu', 'crystal', 'jangwonyoung', 'zhouzhou', 'cute', 'nana', 'kevin', 'kitty']
+  const loraGirls = ['iu', 'crystal', 'jangwonyoung', 'zhouzhou', 'cute', 'nana', 'kevin', 'kitty'];
+
 
   // set the initial image from a random seed
   useEffect(() => {
@@ -67,6 +68,11 @@ export default function Home(props) {
   const handlSelected = (val) => {
     setSelected(val);
     setSettingData(prevState => ({ ...prevState, lora: val }));
+  };
+
+  const handlePrompt = (val) => {
+    setInitialPrompt = "";
+    setSettingData(prevState => ({ ...prevState, setPrompt: val }));
   };
 
   const base64ToBlob = (base64) => {
@@ -94,8 +100,13 @@ export default function Home(props) {
   };
 
   const settingPrompt = async (e) => {
-    console.log('settingData--', settingData);
+    console.log('setLora--', settingData);
     setSettingOpen(!settingOpen);
+  };
+
+  const settingPromptOpen = async (e) => {
+    console.log('setPromptOpen--', promptOpen);
+    setPromptOpen(!promptOpen);
   };
 
   const handleChange = async (e) => {
@@ -109,8 +120,12 @@ export default function Home(props) {
   };
 
   function isEnglish(text) {
-    console.log('text--', text);
     return /^[A-Za-z0-9\s.,!?'"():;\-]+$/.test(text)
+  }
+
+  const handlePromptChange = (e) => {
+    const prompt = e.target.value;
+    console.log('handlePromptChange--', prompt);
   }
 
   const handleSubmit = async (e) => {
@@ -139,21 +154,48 @@ export default function Home(props) {
     let prompt = e.target.prompt.value;
     const lastImage = events.findLast((ev) => ev.image)?.image;
 
+    switch (settingData.setPrompt) {
+      case 'a':
+        prompt = "A Taiwanese girl, wearing a black short skirt and a top that reveals her cleavage, stands on the street holding an umbrella";
+        break;
+      case 'b':
+        prompt = "An Asian bride wears a breast-baring wedding dress. The sleeves were thin and the top showed off her cleavage. She has long legs and big breasts. The church is in the background. Holding a bouquet of red carnations";
+        break;
+      case 'c':
+        prompt = "1 pretty short-haired Korean female idol, wearing a one-piece swimsuit on the beach, with a perfect figure, looking at the audience";
+        break;
+      case 'd':
+        prompt = "flux-style,xuer White tiger,full body portrait,bright colors,a girl,yellow Chinese Hanfu,wide sleeves,hands,jewelry makeup,dynamic pose (leaning on a white tiger),dynamic atmosphere,cranes,waterfalls,forests,(light and shadow:1.2),colorful clouds,ray tracing,nature,(smoky:1.2),clear layers,rich details,sharp focus,professional lighting,full of film sense,glittering dark: medium aquamarine and radiant dark: yellow-green color scheme,contemporary drama atmosphere";
+        break;
+      case 'e':
+        prompt = "motor vehicle,ground vehicle,car,long hair,arm up,breasts,boots,outdoors,detached sleeves,clothing cutout,1girl,looking at viewer,cleavage cutout,sunglasses,hair ribbon,cleavage,beautiful japanese girl,race queen,the costume says \"GAT1\",medium_shot,shoulderless costume,cowboy_shot, ultra realistic, textured skin, remarkable detailed pupils, realistic dull skin noise, visible skin detail, skin fuzz, shot with cinematic camera";
+        break;
+      case 'f':
+        prompt = "High resolution photo of a woman in magical woman costumes, she is wearing black coat with long sleeves and white collared striped shirt with necktie and short black high-waist skirt with buttons, and black pantyhose black loafers and black hat,in hogwarts castle, heavy makeup, deep red lipstick, fake eylashes, mascara, holding magic wand, action stance";
+        break;
+      case 'g':
+        prompt = "a girl wearing a black and red belly dance costume, with intricate details and a graceful pose. Her hair is pulled back in a bun and she has a serene expression on her face, standing in a serene natural setting. She is looking directly at the camera with a calm and composed expression. The cave's walls are rocky, and there are plants and foliage surrounding the water";
+        break;
+      default:
+        // console.log('setPrompt--', settingData.setPrompt);
+    }
+
+    console.log('input prompt------', prompt);
+
     setError(null);
     setIsProcessing(true);
-    setInitialPrompt(prompt);
 
     try {
 
       const promptDefault = "(RAW photo, best quality),(realistic, photo-realistic:1),(high quality),(high detailed skin:0.5),(rim lighting:0.5),";
 
       if (prompt === '') {
-        prompt = "1 girl, upper_body ,brown hair,puffy eyes,gorgeous hair,brown eyes,Front,detailed face, beautiful eyes, shirt,(kpop idoll),";
+        prompt = "1 girl, upper_body ,brown hair,puffy eyes,gorgeous hair,brown eyes,Front,detailed face, beautiful eyes, shirt,(kpop idoll)";
+        setPrevPromptEN(prompt);
       } else {
         setPrevPromptTW(prompt);
         console.log('prevPromptTW-----------', prevPromptTW);
         console.log('isEnglish--', isEnglish(prompt));
-
 
           // google翻譯
           if (prompt !== prevPromptTW) {
@@ -189,7 +231,7 @@ export default function Home(props) {
             }
           } else {
             //咒語沒變用上一次
-            console.log("-------------------prev-----------------");
+            console.log("------------no change----------");
             prompt = prevPromptEN;
           }
       }
@@ -200,7 +242,7 @@ export default function Home(props) {
       }
 
       // make a copy so that the second call to setEvents here doesn't blow away the first. Why?
-      const myEvents = [...events, { prompt }];
+      const myEvents = [...events];
       setEvents(myEvents);
 
       // const body2 = {
@@ -219,7 +261,7 @@ export default function Home(props) {
       const seedNumber = Math.floor(Math.random() * (max - min + 1)) + min;
 
       console.log('prompt======', prompt)
-      console.log('handleRandom======', seedNumber)
+      setInitialPrompt(prompt);
 
       const body = {
         "client_id": "533ef3a3-001",
@@ -364,7 +406,7 @@ export default function Home(props) {
           },
           "48": {
             "inputs": {
-              "filename_prefix": "lisa",
+              "filename_prefix": "lisa_" + Date.now(),
               "images": [
                 "8",
                 0
@@ -448,6 +490,7 @@ export default function Home(props) {
     //   }
     // }
     setIsProcessing(false);
+    setSettingData(prevState => ({ ...prevState, setPrompt: '' }));
   };
 
   const startOver = async (e) => {
@@ -455,7 +498,7 @@ export default function Home(props) {
     setEvents(events.slice(0, 0));
     setError(null);
     setIsProcessing(false);
-    setInitialPrompt(seed.prompt);
+    setInitialPrompt("");
   };
 
   return (
@@ -499,10 +542,24 @@ export default function Home(props) {
               events.slice(0, index - 1).concat(events.slice(index + 1))
             );
           }}
-          downloadImage={(base64) => {
-            const blob = base64ToBlob(base64);
-            const url = URL.createObjectURL(blob);
+          downloadImage={ async (img) => {
+            console.log('downloadImage--', img);
+            // download base64
+            // const blob = base64ToBlob(img);
+            // const url = URL.createObjectURL(blob);
+            // const link = document.createElement('a');
+            // link.href = url;
+            // const uuid = uuidv4().substr(0, 16);
+            // link.download = uuid + '.png';
+            // document.body.appendChild(link);
+            // link.click();
+            // document.body.removeChild(link);
+            // URL.revokeObjectURL(url);
 
+            // download http
+            const response = await fetch(`/api/proxy?url=${encodeURIComponent(img)}`);
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
             const uuid = uuidv4().substr(0, 16);
@@ -516,7 +573,7 @@ export default function Home(props) {
 
         <PromptForm
           initialPrompt={initialPrompt}
-          isFirstPrompt={events.length === 1}
+          // isFirstPrompt={events.length === 1}
           onSubmit={handleSubmit}
           disabled={isProcessing}
         />
@@ -836,6 +893,76 @@ export default function Home(props) {
           </ModalFooter>
         </Modal>
 
+        <Modal toggle={() => setPromptOpen(!promptOpen)} isOpen={promptOpen}>
+          <div className="modal-header">
+            <h5 className="modal-title" id="exampleModalLabel">
+              選擇咒語
+            </h5>
+            <button
+              aria-label="Close"
+              broberder="1"
+              className="close"
+              type="button"
+              onClick={() => setPromptOpen(!promptOpen)}
+            >
+              <span aria-hidden={true}>×</span>
+            </button>
+          </div>
+          <ModalBody className="text-center bg-sky-50">
+            <button
+              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              onClick={() => handlePrompt("a")}
+            >
+              一名女孩身穿黑色短裙，上衣露出乳溝，撐著傘站在街上
+            </button>
+            <button
+              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              onClick={() => handlePrompt("b")}
+            >
+              一位新娘身穿露胸婚紗。照片背景是教堂。她手捧一束紅色康乃馨。
+            </button>
+            <button
+              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              onClick={() => handlePrompt("c")}
+            >
+              1位短髮女孩，在沙灘上穿著比基尼，擁有完美身材。
+            </button>
+            <button
+              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              onClick={() => handlePrompt("d")}
+            >
+              一個女孩倚靠在一隻白色黑紋老虎身上，背景是森林裡的瀑布。
+            </button>
+            <button
+              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              onClick={() => handlePrompt("e")}
+            >
+              一個賽車女郎戴著太陽眼鏡，穿著連身低胸皮衣。
+            </button>
+            <button
+              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              onClick={() => handlePrompt("f")}
+            >
+              一位身穿魔法女裝的女士，身穿黑色長袖外套和黑色帽子，在霍格華茲城堡中，手持魔杖。
+            </button>
+            <button
+              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              onClick={() => handlePrompt("g")}
+            >
+              一位身穿黑紅肚皮舞服裝的女孩，背景是洞穴的岩壁由岩石構成，水面周圍環繞著植物和樹葉。
+            </button>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              color="primary"
+              type="button"
+              onClick={() => setPromptOpen(!promptOpen)}
+            >
+              離開
+            </Button>
+          </ModalFooter>
+        </Modal>
+
         <div className="mx-auto w-full">
           {error && <p className="bold text-red-500 pb-5">{error}</p>}
         </div>
@@ -845,6 +972,7 @@ export default function Home(props) {
           startOver={startOver}
           handleImageDropped={handleImageDropped}
           settingPrompt={settingPrompt}
+          settingPromptOpen={settingPromptOpen}
         />
       </main>
     </div>

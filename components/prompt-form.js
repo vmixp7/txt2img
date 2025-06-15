@@ -2,16 +2,17 @@ import { useEffect, useState } from "react";
 import Message from "./message";
 
 export default function PromptForm({
-  // initialPrompt,
-  isFirstPrompt,
+  initialPrompt,
+  // isFirstPrompt,
   onSubmit,
   disabled = false,
 }) {
   const [prompt, setPrompt] = useState();
 
-  // useEffect(() => {
-  //   setPrompt(initialPrompt);
-  // }, [initialPrompt]);
+  useEffect(() => {
+    setPrompt(initialPrompt);
+  }, [initialPrompt]);
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
