@@ -1,0 +1,8 @@
+{
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/6c9a3f46-eac2-4b7c-956b-93ea8e9940f9/resourceGroups/sexygirl/providers/Microsoft.Web/sites/sexygirl-txt2img",
+    "appService.deploySubpath": "."
+}
