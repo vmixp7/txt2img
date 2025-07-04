@@ -59,6 +59,7 @@ export default function Home(props) {
     setDataLayer(dataLayer.push('js', new Date()))
   }, [seed.image]);
 
+
   const setAllowStatus = () => {
     allow = true;
     // setModalOpen(!modalOpen);
@@ -168,7 +169,7 @@ export default function Home(props) {
         prompt = "flux-style,xuer White tiger,full body portrait,bright colors,a girl,yellow Chinese Hanfu,wide sleeves,hands,jewelry makeup,dynamic pose (leaning on a white tiger),dynamic atmosphere,cranes,waterfalls,forests,(light and shadow:1.2),colorful clouds,ray tracing,nature,(smoky:1.2),clear layers,rich details,sharp focus,professional lighting,full of film sense,glittering dark: medium aquamarine and radiant dark: yellow-green color scheme,contemporary drama atmosphere";
         break;
       case 'e':
-        prompt = "motor vehicle,ground vehicle,car,long hair,arm up,breasts,boots,outdoors,detached sleeves,clothing cutout,1girl,looking at viewer,cleavage cutout,sunglasses,hair ribbon,cleavage,beautiful japanese girl,race queen,the costume says \"GAT1\",medium_shot,shoulderless costume,cowboy_shot, ultra realistic, textured skin, remarkable detailed pupils, realistic dull skin noise, visible skin detail, skin fuzz, shot with cinematic camera";
+        prompt = `motor vehicle,ground vehicle,car,long hair,arm up,breasts,boots,outdoors,detached sleeves,clothing cutout,1girl,looking at viewer,cleavage cutout,sunglasses,hair ribbon,cleavage,beautiful japanese girl,race queen,the costume says "GAT1",medium_shot,shoulderless costume,cowboy_shot, ultra realistic, textured skin, remarkable detailed pupils, realistic dull skin noise, visible skin detail, skin fuzz, shot with cinematic camera`;
         break;
       case 'f':
         prompt = "High resolution photo of a woman in magical woman costumes, she is wearing black coat with long sleeves and white collared striped shirt with necktie and short black high-waist skirt with buttons, and black pantyhose black loafers and black hat,in hogwarts castle, heavy makeup, deep red lipstick, fake eylashes, mascara, holding magic wand, action stance";
@@ -514,7 +515,7 @@ export default function Home(props) {
         <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
       </Head>
 
-      <main className="container max-w-[700px] mx-auto mt-14">
+      <main className="max-w-[700px] mx-auto mt-14">
         <div className="flex justify-center bg-blue-800 w-full text-white absolute inset-x-0 top-0 h-12">
           {props.user ? (
             <>

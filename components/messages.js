@@ -4,19 +4,20 @@ import { Fragment, useEffect, useRef } from "react";
 import PulseLoader from "react-spinners/PulseLoader";
 import Message from "./message";
 
+
+
 export default function Messages({ events, isProcessing, onUndo, downloadImage}) {
+
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
     if (events.length > 2) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [events.length]);
 
-
-
   return (
-    <section className="w-full">
+    <section className="container w-full">
       {events.map((ev, index) => {
         if (ev.image) {
           return (
@@ -74,7 +75,14 @@ export default function Messages({ events, isProcessing, onUndo, downloadImage})
           <PulseLoader color="#999" size={7} />
         </Message>
       )}
-
+      {isProcessing && (
+        <div
+          style={{
+            height: "80px",
+            width: "100%",
+          }}
+        />
+      )}
       <div ref={messagesEndRef} />
     </section>
   );

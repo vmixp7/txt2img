@@ -25,7 +25,7 @@ export default function PromptForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="animate-in fade-in duration-700">
+    <form onSubmit={handleSubmit} className="container animate-in fade-in duration-700">
       {/* <Message sender="replicate" isSameSender> */}
         {/* <label htmlFor="prompt-input">
           {isFirstPrompt
@@ -51,13 +51,19 @@ export default function PromptForm({
       <div className="flex mt-3">
         {disabled || (
           <button
-            className="bg-blue-800 w-full text-white rounded-l-md rounded-r-md text-2xl inline-block p-3 flex-none"
+            className="bg-cyan-500 w-full text-white rounded-l-md rounded-r-md text-2xl inline-block p-3 flex-none"
             type="submit"
           >
             start
           </button>
         )}
       </div>
+      <div
+        style={{
+          height: "100px",
+          width: "100%",
+        }}
+      />
     </form>
   );
 }
