@@ -745,7 +745,7 @@ export default function Home(props) {
                         handlSelected("flux_aya");
                       }}
                     />
-                    <p className="text-center text-sm">aya</p>
+                    <p className="text_right_20 text-center text-sm">aya</p>
                   </Col>
                   <Col>
                     <Image
@@ -761,7 +761,7 @@ export default function Home(props) {
                         handlSelected("Flux_lora_IU");
                       }}
                     />
-                    <p className="text-center text-sm">IU</p>
+                    <p className="text_right_20 text-center text-sm">IU</p>
                   </Col>
                   <Col>
                     <Image
@@ -777,7 +777,7 @@ export default function Home(props) {
                         handlSelected("flux-dev-lora-lyf");
                       }}
                     />
-                    <p className="text-center text-sm">劉亦菲</p>
+                    <p className="text_right_20 text-center text-sm">劉亦菲</p>
                   </Col>
                 </Row>
                 <Row>
@@ -795,7 +795,7 @@ export default function Home(props) {
                         handlSelected("Flux_lora_Lee-Ju-Eun");
                       }}
                     />
-                    <p className="text-center text-sm">李珠垠</p>
+                    <p className="text_right_20 text-center text-sm">李珠垠</p>
                   </Col>
                   <Col>
                     <Image
@@ -811,7 +811,7 @@ export default function Home(props) {
                         handlSelected("lisa_rank4_bf16-step01280");
                       }}
                     />
-                    <p className="text-center text-sm">白坂美杏</p>
+                    <p className="text_right_20 text-center text-sm">白坂美杏</p>
                   </Col>
                   <Col>
                     <Image
@@ -827,7 +827,7 @@ export default function Home(props) {
                         handlSelected("flux_lora_aodaivn7");
                       }}
                     />
-                    <p className="text-center text-sm">aodaivn</p>
+                    <p className="text_right_20 text-center text-sm">aodaivn</p>
                   </Col>
                 </Row>
                 <Row>
@@ -845,7 +845,7 @@ export default function Home(props) {
                         handlSelected("flux-selina-000012");
                       }}
                     />
-                    <p className="text-center text-sm">selina</p>
+                    <p className="text_right_20 text-center text-sm">selina</p>
                   </Col>
                   <Col>
                     <Image
@@ -861,7 +861,7 @@ export default function Home(props) {
                         handlSelected("heart-000012");
                       }}
                     />
-                    <p className="text-center text-sm">心兒</p>
+                    <p className="text_right_20 text-center text-sm">心兒</p>
                   </Col>
                   <Col>
                     <Image
@@ -877,7 +877,7 @@ export default function Home(props) {
                         handlSelected("sashang_v1_rank4_bf16-step02560");
                       }}
                     />
-                    <p className="text-center text-sm">沙宣</p>
+                    <p className="text_right_20 text-center text-sm">沙宣</p>
                   </Col>
                 </Row>
                 <Row>
@@ -895,7 +895,7 @@ export default function Home(props) {
                         handlSelected("flux-abby");
                       }}
                     />
-                    <p className="text-center text-sm">abby</p>
+                    <p className="text_right_20 text-center text-sm">abby</p>
                   </Col>
                   <Col></Col>
                   <Col></Col>

@@ -57,3 +57,7 @@ input, textarea {
   @apply text-gray-600;
   @apply underline;
 }
+
+.text_right_20 {
+  padding-right: 20px
+}
