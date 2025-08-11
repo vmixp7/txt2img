@@ -18,7 +18,7 @@ import getConfig from 'next/config'
 import { replace } from "lodash";
 
 export const appName = "AI美女產生器";
-export const appSubtitle = "輸入中文或英文描敘,用逗號分隔,創作一個自己的AI女友";
+export const appSubtitle = "輸入英文描敘,創你的AI女友";
 export const appMetaDescription = "AI, text2image, txt2img, word to image, art, stable diffustion, sexy girl, beautiful girl, ai girl, genetate, chinese, 中文, 中文文生圖, 文字產生圖片, 文字產生美女圖, AI美女, AI女友";
 
 const { publicRuntimeConfig } = getConfig()
@@ -169,7 +169,7 @@ export default function Home(props) {
         prompt = "flux-style,xuer White tiger,full body portrait,bright colors,a girl,yellow Chinese Hanfu,wide sleeves,hands,jewelry makeup,dynamic pose (leaning on a white tiger),dynamic atmosphere,cranes,waterfalls,forests,(light and shadow:1.2),colorful clouds,ray tracing,nature,(smoky:1.2),clear layers,rich details,sharp focus,professional lighting,full of film sense,glittering dark: medium aquamarine and radiant dark: yellow-green color scheme,contemporary drama atmosphere";
         break;
       case 'e':
-        prompt = `motor vehicle,ground vehicle,car,long hair,arm up,breasts,boots,outdoors,detached sleeves,clothing cutout,1girl,looking at viewer,cleavage cutout,sunglasses,hair ribbon,cleavage,beautiful japanese girl,race queen,the costume says "GAT1",medium_shot,shoulderless costume,cowboy_shot, ultra realistic, textured skin, remarkable detailed pupils, realistic dull skin noise, visible skin detail, skin fuzz, shot with cinematic camera`;
+        prompt = `motor vehicle,ground vehicle,car,long hair,arm up,breasts,boots,outdoors,detached sleeves,clothing cutout,1girl,looking at viewer,cleavage cutout,sunglasses,hair ribbon,cleavage,beautiful japanese girl,race queen,the costume says "GAT1",medium_shot,shoulderless costume,cowboy shot, ultra realistic, textured skin, remarkable detailed pupils, realistic dull skin noise, visible skin detail, skin fuzz, shot with cinematic camera`;
         break;
       case 'f':
         prompt = "High resolution photo of a woman in magical woman costumes, she is wearing black coat with long sleeves and white collared striped shirt with necktie and short black high-waist skirt with buttons, and black pantyhose black loafers and black hat,in hogwarts castle, heavy makeup, deep red lipstick, fake eylashes, mascara, holding magic wand, action stance";
@@ -178,7 +178,7 @@ export default function Home(props) {
         prompt = "a girl wearing a black and red belly dance costume, with intricate details and a graceful pose. Her hair is pulled back in a bun and she has a serene expression on her face, standing in a serene natural setting. She is looking directly at the camera with a calm and composed expression. The cave's walls are rocky, and there are plants and foliage surrounding the water";
         break;
       default:
-        // console.log('setPrompt--', settingData.setPrompt);
+      // console.log('setPrompt--', settingData.setPrompt);
     }
 
     console.log('input prompt------', prompt);
@@ -198,43 +198,43 @@ export default function Home(props) {
         console.log('prevPromptTW-----------', prevPromptTW);
         console.log('isEnglish--', isEnglish(prompt));
 
-          // google翻譯
-          if (prompt !== prevPromptTW) {
-            if (isEnglish(prompt)) {
-              setPrevPromptEN(prompt);
-            } else {
-              console.log("----------------translate--------------");
-              let fromLang = 'zh-tw';
-              const toLang = 'en';
-              const GOOGLE_API_KEY = publicRuntimeConfig.googleApiKey;
-              let gturl = `https://translation.googleapis.com/language/translate/v2?key=${GOOGLE_API_KEY}`;
-              gturl += '&q=' + encodeURI(prompt);
-              gturl += `&source=${fromLang}`;
-              gturl += `&target=${toLang}`;
-
-              const gtheaders = {
-                "Content-Type": "application/json",
-              }
-              const gtres = await fetch(gturl, {
-                method: "GET",
-                gtheaders,
-              });
-              const transObj = await gtres.json();
-              console.log("translate res--", transObj);
-              if (gtres.status > 201 || transObj.data == undefined) {
-                setIsProcessing(false);
-                setError('翻譯失敗,請改用英文輸入');
-                return;
-              }
-              prompt = transObj.data.translations[0].translatedText;
-              setPrevPromptEN(prompt);
-              console.log('prevPromptEN-----------', prevPromptEN);
-            }
+        // google翻譯
+        if (prompt !== prevPromptTW) {
+          if (isEnglish(prompt)) {
+            setPrevPromptEN(prompt);
           } else {
-            //咒語沒變用上一次
-            console.log("------------no change----------");
-            prompt = prevPromptEN;
+            console.log("----------------translate--------------");
+            let fromLang = 'zh-tw';
+            const toLang = 'en';
+            const GOOGLE_API_KEY = publicRuntimeConfig.googleApiKey;
+            let gturl = `https://translation.googleapis.com/language/translate/v2?key=${GOOGLE_API_KEY}`;
+            gturl += '&q=' + encodeURI(prompt);
+            gturl += `&source=${fromLang}`;
+            gturl += `&target=${toLang}`;
+
+            const gtheaders = {
+              "Content-Type": "application/json",
+            }
+            const gtres = await fetch(gturl, {
+              method: "GET",
+              gtheaders,
+            });
+            const transObj = await gtres.json();
+            console.log("translate res--", transObj);
+            if (gtres.status > 201 || transObj.data == undefined) {
+              setIsProcessing(false);
+              setError('翻譯失敗,請改用英文輸入');
+              return;
+            }
+            prompt = transObj.data.translations[0].translatedText;
+            setPrevPromptEN(prompt);
+            console.log('prevPromptEN-----------', prevPromptEN);
           }
+        } else {
+          //咒語沒變用上一次
+          console.log("------------no change----------");
+          prompt = prevPromptEN;
+        }
       }
 
       let myPrompt = promptDefault + prompt;
@@ -299,7 +299,7 @@ export default function Home(props) {
           },
           "5": {
             "inputs": {
-              "width":imgWidth,
+              "width": imgWidth,
               "height": imgHeight,
               "batch_size": 1
             },
@@ -453,12 +453,12 @@ export default function Home(props) {
       // if (prediction.images.length > 0) {
       //   console.log('succeeded--------------------');
       //   const base64Img = `data:image/png;base64,${prediction.images[0]}`;
-        setEvents(
-          myEvents.concat([
-            // { image: prediction.output?.[prediction.output.length - 1] },
-            { image: prediction.url },
-          ])
-        );
+      setEvents(
+        myEvents.concat([
+          // { image: prediction.output?.[prediction.output.length - 1] },
+          { image: prediction.url },
+        ])
+      );
       // }
     } catch (error) {
       console.log("node server err---------", error);
@@ -543,7 +543,7 @@ export default function Home(props) {
               events.slice(0, index - 1).concat(events.slice(index + 1))
             );
           }}
-          downloadImage={ async (img) => {
+          downloadImage={async (img) => {
             console.log('downloadImage--', img);
             // download base64
             // const blob = base64ToBlob(img);
@@ -698,7 +698,7 @@ export default function Home(props) {
             </div>
 
             <div className="mt-4">
-             <label className="block uppercase tracking-wide text-gray-700 font-bold mb-2" >
+              <label className="block uppercase tracking-wide text-gray-700 font-bold mb-2" >
                 虛擬人物
               </label>
               {/* <select
@@ -716,7 +716,7 @@ export default function Home(props) {
               <option value="KevinDetroit" selected={settingData.lora === "KevinDetroit"}>Kevin</option>
               <option value="KittyDetroit" selected={settingData.lora === "KittyDetroit"}>Kitty</option>
              </select> */}
-             {/* <Img
+              {/* <Img
               className="cursor-pointer"
               onClick={() => setLora("iu")}
               src={iu}
@@ -781,7 +781,7 @@ export default function Home(props) {
                   </Col>
                 </Row>
                 <Row>
-                   <Col>
+                  <Col>
                     <Image
                       src="/images/jangwonyoung.png"
                       width="100%"

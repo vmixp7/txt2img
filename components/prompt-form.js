@@ -27,7 +27,7 @@ export default function PromptForm({
   return (
     <form onSubmit={handleSubmit} className="container animate-in fade-in duration-700">
       {/* <Message sender="replicate" isSameSender> */}
-        {/* <label htmlFor="prompt-input">
+      {/* <label htmlFor="prompt-input">
           {isFirstPrompt
             ? "What should we change?"
             : "What should we change now?"}
@@ -41,10 +41,9 @@ export default function PromptForm({
           name="prompt"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          placeholder="可輸入中文..."
-          className={`block w-full flex-grow${
-            disabled ? " rounded-md" : " rounded-l-md"
-          }`}
+          placeholder="加入VIP可輸入中文..."
+          className={`block w-full flex-grow${disabled ? " rounded-md" : " rounded-l-md"
+            }`}
           disabled={disabled}
         />
       </div>
