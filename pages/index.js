@@ -18,7 +18,7 @@ import getConfig from 'next/config'
 import { replace } from "lodash";
 
 export const appName = "AI美女產生器";
-export const appSubtitle = "輸入英文描敘,創你的AI女友";
+export const appSubtitle = "輸入中文或英文描述,創造你的AI女友";
 export const appMetaDescription = "AI, text2image, txt2img, word to image, art, stable diffustion, sexy girl, beautiful girl, ai girl, genetate, chinese, 中文, 中文文生圖, 文字產生圖片, 文字產生美女圖, AI美女, AI女友";
 
 const { publicRuntimeConfig } = getConfig()
@@ -42,11 +42,11 @@ export default function Home(props) {
   const [settingData, setSettingData] = useState({
     shape: "1",
     checkpointModel: "majicmixRealistic_v4",
-    lora: "none",
+    lora: "flux_aya",
     setPrompt: "",
   });
-  const [selected, setSelected] = useState("none");
-  const loraGirls = ['iu', 'crystal', 'jangwonyoung', 'zhouzhou', 'cute', 'nana', 'kevin', 'kitty'];
+  const [selected, setSelected] = useState("flux_aya");
+  const loraGirls = ['aya', '白坂美杏', 'IU', '劉亦菲', '李珠垠', 'aodaivn', 'selina', '心兒', '沙宣', 'abby'];
 
 
   // set the initial image from a random seed
@@ -169,7 +169,7 @@ export default function Home(props) {
         prompt = "flux-style,xuer White tiger,full body portrait,bright colors,a girl,yellow Chinese Hanfu,wide sleeves,hands,jewelry makeup,dynamic pose (leaning on a white tiger),dynamic atmosphere,cranes,waterfalls,forests,(light and shadow:1.2),colorful clouds,ray tracing,nature,(smoky:1.2),clear layers,rich details,sharp focus,professional lighting,full of film sense,glittering dark: medium aquamarine and radiant dark: yellow-green color scheme,contemporary drama atmosphere";
         break;
       case 'e':
-        prompt = `motor vehicle,ground vehicle,car,long hair,arm up,breasts,boots,outdoors,detached sleeves,clothing cutout,1girl,looking at viewer,cleavage cutout,sunglasses,hair ribbon,cleavage,beautiful japanese girl,race queen,the costume says "GAT1",medium_shot,shoulderless costume,cowboy shot, ultra realistic, textured skin, remarkable detailed pupils, realistic dull skin noise, visible skin detail, skin fuzz, shot with cinematic camera`;
+        prompt = "motor vehicle,ground vehicle,car,long hair,arm up,breasts,boots,outdoors,detached sleeves,clothing cutout,1girl,looking at viewer,cleavage cutout,sunglasses,hair ribbon,cleavage,beautiful japanese girl,race queen,the costume says \"GAT1\",medium shot,shoulderless costume,cowboy shot, ultra realistic, textured skin, remarkable detailed pupils, realistic dull skin noise, visible skin detail, skin fuzz, shot with cinematic camera";
         break;
       case 'f':
         prompt = "High resolution photo of a woman in magical woman costumes, she is wearing black coat with long sleeves and white collared striped shirt with necktie and short black high-waist skirt with buttons, and black pantyhose black loafers and black hat,in hogwarts castle, heavy makeup, deep red lipstick, fake eylashes, mascara, holding magic wand, action stance";
@@ -237,10 +237,10 @@ export default function Home(props) {
         }
       }
 
-      let myPrompt = promptDefault + prompt;
-      if (settingData.lora !== 'none') {
-        myPrompt += `,<lora:${settingData.lora}:0.8>`;
-      }
+      // let myPrompt = promptDefault + prompt;
+      // if (settingData.lora !== 'none') {
+      //   myPrompt += `,<lora:${settingData.lora}:0.8>`;
+      // }
 
       // make a copy so that the second call to setEvents here doesn't blow away the first. Why?
       const myEvents = [...events];
@@ -388,7 +388,7 @@ export default function Home(props) {
           },
           "33": {
             "inputs": {
-              "lora_name": "lisa_rank4_bf16-step01280.safetensors",
+              "lora_name": settingData.lora + ".safetensors",
               "strength_model": 0.85,
               "strength_clip": 1,
               "model": [
@@ -407,7 +407,7 @@ export default function Home(props) {
           },
           "48": {
             "inputs": {
-              "filename_prefix": "lisa_" + Date.now(),
+              "filename_prefix": "txt2img_" + Date.now(),
               "images": [
                 "8",
                 0
@@ -733,19 +733,19 @@ export default function Home(props) {
                 <Row>
                   <Col>
                     <Image
-                      src="/images/none.png"
+                      src="/images/aya.png"
                       width="100%"
                       height={150}
                       className={
-                        "lora_img " + (selected === "none" ? "opacity-100" : "")
+                        "lora_img " + (selected === "flux_aya" ? "opacity-100" : "")
                       }
-                      aria-selected={selected === "none"}
+                      aria-selected={selected === "flux_aya"}
                       onClick={(e) => {
                         e.preventDefault();
-                        handlSelected("none");
+                        handlSelected("flux_aya");
                       }}
                     />
-                    <p className="text-center text-sm">None(隨機)</p>
+                    <p className="text-center text-sm">aya</p>
                   </Col>
                   <Col>
                     <Image
@@ -753,132 +753,152 @@ export default function Home(props) {
                       width="100%"
                       height={150}
                       className={
-                        "lora_img " + (selected === "iu_V35" ? "opacity-100" : "")
+                        "lora_img " + (selected === "Flux_lora_IU" ? "opacity-100" : "")
                       }
-                      aria-selected={selected === "iu_V35"}
+                      aria-selected={selected === "Flux_lora_IU"}
                       onClick={(e) => {
                         e.preventDefault();
-                        handlSelected("iu_V35");
+                        handlSelected("Flux_lora_IU");
                       }}
                     />
                     <p className="text-center text-sm">IU</p>
                   </Col>
                   <Col>
                     <Image
-                      src="/images/crystal.png"
+                      src="/images/lyf.png"
                       width="100%"
                       height={150}
                       className={
-                        "lora_img " + (selected === "ldp" ? "opacity-100" : "")
+                        "lora_img " + (selected === "flux-dev-lora-lyf" ? "opacity-100" : "")
                       }
-                      aria-selected={selected === "ldp"}
+                      aria-selected={selected === "flux-dev-lora-lyf"}
                       onClick={(e) => {
                         e.preventDefault();
-                        handlSelected("ldp");
+                        handlSelected("flux-dev-lora-lyf");
                       }}
                     />
-                    <p className="text-center text-sm">crystal</p>
+                    <p className="text-center text-sm">劉亦菲</p>
                   </Col>
                 </Row>
                 <Row>
                   <Col>
                     <Image
-                      src="/images/jangwonyoung.png"
+                      src="/images/lee_ju_eun.png"
                       width="100%"
                       height={150}
                       className={
-                        "lora_img " + (selected === "jangWonYoung_jwyV10" ? "opacity-100" : "")
+                        "lora_img " + (selected === "Flux_lora_Lee-Ju-Eun" ? "opacity-100" : "")
                       }
-                      aria-selected={selected === "jangWonYoung_jwyV10"}
+                      aria-selected={selected === "Flux_lora_Lee-Ju-Eun"}
                       onClick={(e) => {
                         e.preventDefault();
-                        handlSelected("jangWonYoung_jwyV10");
+                        handlSelected("Flux_lora_Lee-Ju-Eun");
                       }}
                     />
-                    <p className="text-center text-sm">jang</p>
+                    <p className="text-center text-sm">李珠垠</p>
                   </Col>
                   <Col>
                     <Image
-                      src="/images/zhouzhou.png"
+                      src="/images/lisa.png"
                       width="100%"
                       height={150}
                       className={
-                        "lora_img " + (selected === "zhouzhou_zsyV10" ? "opacity-100" : "")
+                        "lora_img " + (selected === "lisa_rank4_bf16-step01280" ? "opacity-100" : "")
                       }
-                      aria-selected={selected === "zhouzhou_zsyV10"}
+                      aria-selected={selected === "lisa_rank4_bf16-step01280"}
                       onClick={(e) => {
                         e.preventDefault();
-                        handlSelected("zhouzhou_zsyV10");
+                        handlSelected("lisa_rank4_bf16-step01280");
                       }}
                     />
-                    <p className="text-center text-sm">zhouzhou</p>
+                    <p className="text-center text-sm">白坂美杏</p>
                   </Col>
                   <Col>
                     <Image
-                      src="/images/cute.png"
+                      src="/images/aodaivn.png"
                       width="100%"
                       height={150}
                       className={
-                        "lora_img " + (selected === "cuteGirlMix4_v10" ? "opacity-100" : "")
+                        "lora_img " + (selected === "flux_lora_aodaivn7" ? "opacity-100" : "")
                       }
-                      aria-selected={selected === "cuteGirlMix4_v10"}
+                      aria-selected={selected === "flux_lora_aodaivn7"}
                       onClick={(e) => {
                         e.preventDefault();
-                        handlSelected("cuteGirlMix4_v10");
+                        handlSelected("flux_lora_aodaivn7");
                       }}
                     />
-                    <p className="text-center text-sm">cute</p>
+                    <p className="text-center text-sm">aodaivn</p>
                   </Col>
                 </Row>
                 <Row>
                   <Col>
                     <Image
-                      src="/images/nana.png"
+                      src="/images/selina.png"
                       width="100%"
                       height={150}
                       className={
-                        "lora_img " + (selected === "NanaDetroit" ? "opacity-100" : "")
+                        "lora_img " + (selected === "flux-selina-000012" ? "opacity-100" : "")
                       }
-                      aria-selected={selected === "NanaDetroit"}
+                      aria-selected={selected === "flux-selina-000012"}
                       onClick={(e) => {
                         e.preventDefault();
-                        handlSelected("NanaDetroit");
+                        handlSelected("flux-selina-000012");
                       }}
                     />
-                    <p className="text-center text-sm">nana</p>
+                    <p className="text-center text-sm">selina</p>
                   </Col>
                   <Col>
                     <Image
-                      src="/images/kevin.png"
+                      src="/images/heart.png"
                       width="100%"
                       height={150}
                       className={
-                        "lora_img " + (selected === "KevinDetroit" ? "opacity-100" : "")
+                        "lora_img " + (selected === "heart-000012" ? "opacity-100" : "")
                       }
-                      aria-selected={selected === "KevinDetroit"}
+                      aria-selected={selected === "heart-000012"}
                       onClick={(e) => {
                         e.preventDefault();
-                        handlSelected("KevinDetroit");
+                        handlSelected("heart-000012");
                       }}
                     />
-                    <p className="text-center text-sm">kevin</p>
+                    <p className="text-center text-sm">心兒</p>
                   </Col>
                   <Col>
                     <Image
-                      src="/images/kitty.png"
+                      src="/images/sashang.png"
                       width="100%"
                       height={150}
                       className={
-                        "lora_img " + (selected === "KittyDetroit" ? "opacity-100" : "")
+                        "lora_img " + (selected === "sashang_v1_rank4_bf16-step02560" ? "opacity-100" : "")
                       }
-                      aria-selected={selected === "KittyDetroit"}
+                      aria-selected={selected === "sashang_v1_rank4_bf16-step02560"}
                       onClick={(e) => {
                         e.preventDefault();
-                        handlSelected("KittyDetroit");
+                        handlSelected("sashang_v1_rank4_bf16-step02560");
                       }}
                     />
-                    <p className="text-center text-sm">kitty</p>
+                    <p className="text-center text-sm">沙宣</p>
                   </Col>
+                </Row>
+                <Row>
+                  <Col>
+                    <Image
+                      src="/images/abby.png"
+                      width="100%"
+                      height={150}
+                      className={
+                        "lora_img " + (selected === "flux-abby" ? "opacity-100" : "")
+                      }
+                      aria-selected={selected === "flux-abby"}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handlSelected("flux-abby");
+                      }}
+                    />
+                    <p className="text-center text-sm">abby</p>
+                  </Col>
+                  <Col></Col>
+                  <Col></Col>
                 </Row>
               </Container>
             </div>
@@ -911,43 +931,43 @@ export default function Home(props) {
           </div>
           <ModalBody className="text-center bg-sky-50">
             <button
-              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
               onClick={() => handlePrompt("a")}
             >
               一名女孩身穿黑色短裙，上衣露出乳溝，撐著傘站在街上
             </button>
             <button
-              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
               onClick={() => handlePrompt("b")}
             >
               一位新娘身穿露胸婚紗。照片背景是教堂。她手捧一束紅色康乃馨。
             </button>
             <button
-              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
               onClick={() => handlePrompt("c")}
             >
               1位短髮女孩，在沙灘上穿著比基尼，擁有完美身材。
             </button>
             <button
-              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
               onClick={() => handlePrompt("d")}
             >
               一個女孩倚靠在一隻白色黑紋老虎身上，背景是森林裡的瀑布。
             </button>
             <button
-              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
               onClick={() => handlePrompt("e")}
             >
               一個賽車女郎戴著太陽眼鏡，穿著連身低胸皮衣。
             </button>
             <button
-              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
               onClick={() => handlePrompt("f")}
             >
               一位身穿魔法女裝的女士，身穿黑色長袖外套和黑色帽子，在霍格華茲城堡中，手持魔杖。
             </button>
             <button
-              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
               onClick={() => handlePrompt("g")}
             >
               一位身穿黑紅肚皮舞服裝的女孩，背景是洞穴的岩壁由岩石構成，水面周圍環繞著植物和樹葉。

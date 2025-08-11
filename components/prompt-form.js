@@ -41,7 +41,7 @@ export default function PromptForm({
           name="prompt"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          placeholder="加入VIP可輸入中文..."
+          placeholder="可輸入中文"
           className={`block w-full flex-grow${disabled ? " rounded-md" : " rounded-l-md"
             }`}
           disabled={disabled}
