@@ -523,7 +523,7 @@ export default function Home(props) {
               <button className="ml-2" onClick={props.signOut}> <LogoutIcon className="icon" /></button>
             </>
           ) : (
-            <span className="my-auto">Welcome to sexygirl.ai</span>
+            <span className="my-auto">Welcome to txt2img</span>
           )}
         </div>
 
