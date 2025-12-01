@@ -242,6 +242,7 @@ export default function Home(props) {
             const transObj = await gtres.json();
             console.log("translate res--", transObj);
             if (gtres.status > 201 || transObj.data == undefined) {
+              setShowAd(false);
               setIsProcessing(false);
               setError('翻譯失敗,請改用英文輸入');
               return;
@@ -466,6 +467,23 @@ export default function Home(props) {
       const prediction = await response.json();
       console.log('prediction=====', prediction);
 
+      if (response.status > 201) {
+        console.log('err1---------------', response);
+
+        // 確保廣告至少顯示 5 秒
+        const adElapsedTime = Date.now() - adStartTime;
+        const remainingTime = Math.max(0, 5000 - adElapsedTime);
+
+        if (remainingTime > 0) {
+          await sleep(remainingTime);
+        }
+
+        setShowAd(false);
+        setIsProcessing(false);
+        setError(prediction.detail);
+        return;
+      }
+
       // 確保廣告至少顯示 5 秒
       const adElapsedTime = Date.now() - adStartTime;
       const remainingTime = Math.max(0, 5000 - adElapsedTime);
@@ -475,12 +493,6 @@ export default function Home(props) {
       }
 
       setShowAd(false);
-
-      // if (response.status > 201) {
-      //   console.log('err1---------------', response);
-      //   setError(prediction.detail);
-      //   return;
-      // }
       // if (prediction.images.length > 0) {
       //   console.log('succeeded--------------------');
       //   const base64Img = `data:image/png;base64,${prediction.images[0]}`;
@@ -610,6 +622,7 @@ export default function Home(props) {
           onSubmit={handleSubmit}
           disabled={isProcessing}
           inputRef={promptInputRef}
+          error={error}
         />
 
         <Modal toggle={() => setModalOpen(!modalOpen)} isOpen={modalOpen}>
@@ -1013,10 +1026,6 @@ export default function Home(props) {
             </button>
           </ModalBody>
         </Modal>
-
-        <div className="mx-auto w-full">
-          {error && <p className="bold text-red-500 pb-5">{error}</p>}
-        </div>
 
         <Footer
           events={events}

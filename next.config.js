@@ -14,6 +14,7 @@ const nextConfig = {
       measurementId: "G-4939Y3NK3S"
     }
   },
+  output: 'standalone',
   reactStrictMode: true,
   swcMinify: true,
   images: {
