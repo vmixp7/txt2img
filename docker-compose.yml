@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  txt2img:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: txt2img:latest
+    container_name: txt2img-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    # 如果需要掛載環境變量文件
+    # env_file:
+    #   - .env.production

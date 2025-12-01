@@ -7,6 +7,7 @@ export default function PromptForm({
   onSubmit,
   disabled = false,
   inputRef = null,
+  error = null,
 }) {
   const [prompt, setPrompt] = useState();
 
@@ -59,6 +60,11 @@ export default function PromptForm({
           </button>
         )}
       </div>
+      {error && (
+        <div className="mt-3 text-left">
+          <p className="bold text-red-500">{error}</p>
+        </div>
+      )}
       <div
         style={{
           height: "100px",
