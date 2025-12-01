@@ -6,6 +6,7 @@ export default function PromptForm({
   // isFirstPrompt,
   onSubmit,
   disabled = false,
+  inputRef = null,
 }) {
   const [prompt, setPrompt] = useState();
 
@@ -37,7 +38,8 @@ export default function PromptForm({
       <div className="flex mt-3">
         <textarea
           id="prompt-input"
-          rows="2"
+          ref={inputRef}
+          rows="4"
           name="prompt"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}

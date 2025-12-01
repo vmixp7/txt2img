@@ -2,8 +2,9 @@ import Head from "next/head";
 import Link from "next/link";
 import { ArrowLeft as ArrowLeftIcon } from "lucide-react";
 import { Mail as MailIcon } from "lucide-react";
+import Navbar from "components/navbar";
 
-import appName from "./index";
+import { appName } from "./index";
 
 export default function Privacy() {
   return (
@@ -12,7 +13,9 @@ export default function Privacy() {
         <title>{appName}</title>
       </Head>
 
-      <main className="container max-w-[600px] mx-auto p-5">
+      <Navbar />
+
+      <main className="container max-w-[600px] mx-auto p-5 mt-8">
         <h1 className="text-center text-5xl font-bold m-6">隱私條款</h1>
 
         <p className="prose">
