@@ -103,12 +103,14 @@ export default function Home(props) {
       setPrevPromptEN("");
       setPrevPromptTW("");
       setPromptOpen(false);
-      // 聚焦到輸入框
+      // 聚焦到輸入框 - 延長延遲以確保 modal 完全關閉
       setTimeout(() => {
         if (promptInputRef.current) {
           promptInputRef.current.focus();
+          // 額外確保焦點保持
+          promptInputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-      }, 100);
+      }, 350);
     } else {
       // 預設咒語
       const promptText = promptTemplates[val] || "";
@@ -1037,7 +1039,7 @@ export default function Home(props) {
       </main>
 
       {showAd && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black bg-opacity-75 z-[9999] flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg max-w-2xl mx-4">
             <div className="text-center mb-4">
               <h3 className="text-xl font-bold mb-2">正在生成圖片...</h3>
