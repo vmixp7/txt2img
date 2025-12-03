@@ -59,6 +59,7 @@ export default function Home(props) {
     setPrompt: "",
   });
   const [selected, setSelected] = useState("flux_aya");
+  const [selectedPrompts, setSelectedPrompts] = useState(new Set());
   const loraGirls = ['aya', '白坂美杏', 'IU', '劉亦菲', '李珠垠', 'aodaivn', 'selina', '心兒', '沙宣', 'abby'];
   const promptInputRef = useRef(null);
 
@@ -97,6 +98,15 @@ export default function Home(props) {
   };
 
   const handlePrompt = (val) => {
+    // Track selected prompt (except 'custom')
+    if (val !== 'custom') {
+      // Replace the Set with only the new selection to restore other colors
+      setSelectedPrompts(new Set([val]));
+    } else {
+      // Clear all selections for custom
+      setSelectedPrompts(new Set());
+    }
+
     if (val === 'custom') {
       // 自訂選項：清空輸入框
       setInitialPrompt("");
@@ -985,43 +995,43 @@ export default function Home(props) {
               ✨ 自訂咒語
             </button>
             <button
-              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded ${selectedPrompts.has("a") ? "text-blue-600" : "text-sky-500"}`}
               onClick={() => handlePrompt("a")}
             >
               一名女孩身穿黑色短裙，上衣露出乳溝，撐著傘站在街上
             </button>
             <button
-              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded ${selectedPrompts.has("b") ? "text-blue-600" : "text-sky-500"}`}
               onClick={() => handlePrompt("b")}
             >
               一位新娘身穿露胸婚紗。照片背景是教堂。她手捧一束紅色康乃馨。
             </button>
             <button
-              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded ${selectedPrompts.has("c") ? "text-blue-600" : "text-sky-500"}`}
               onClick={() => handlePrompt("c")}
             >
               1位短髮女孩，在沙灘上穿著比基尼，擁有完美身材。
             </button>
             <button
-              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded ${selectedPrompts.has("d") ? "text-blue-600" : "text-sky-500"}`}
               onClick={() => handlePrompt("d")}
             >
               一個女孩倚靠在一隻白色黑紋老虎身上，背景是森林裡的瀑布。
             </button>
             <button
-              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded ${selectedPrompts.has("e") ? "text-blue-600" : "text-sky-500"}`}
               onClick={() => handlePrompt("e")}
             >
               一個賽車女郎戴著太陽眼鏡，穿著連身低胸皮衣。
             </button>
             <button
-              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded ${selectedPrompts.has("f") ? "text-blue-600" : "text-sky-500"}`}
               onClick={() => handlePrompt("f")}
             >
               一位身穿魔法女裝的女士，身穿黑色長袖外套和黑色帽子，在霍格華茲城堡中，手持魔杖。
             </button>
             <button
-              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded ${selectedPrompts.has("g") ? "text-blue-600" : "text-sky-500"}`}
               onClick={() => handlePrompt("g")}
             >
               一位身穿黑紅肚皮舞服裝的女孩，背景是洞穴的岩壁由岩石構成，水面周圍環繞著植物和樹葉。
