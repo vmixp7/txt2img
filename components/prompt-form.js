@@ -7,6 +7,7 @@ export default function PromptForm({
   onSubmit,
   disabled = false,
   inputRef = null,
+  formRef = null,
   error = null,
 }) {
   const [prompt, setPrompt] = useState();
@@ -27,7 +28,7 @@ export default function PromptForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="container animate-in fade-in duration-700">
+    <form ref={formRef} onSubmit={handleSubmit} className="container animate-in fade-in duration-700">
       {/* <Message sender="replicate" isSameSender> */}
       {/* <label htmlFor="prompt-input">
           {isFirstPrompt

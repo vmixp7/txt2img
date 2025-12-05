@@ -2,13 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
-input, textarea {
+body {
+  background-color: #ffffff !important;
+}
+
+input,
+textarea {
   @apply border;
   @apply border-solid;
   @apply border-gray-300;
   /* @apply rounded-md; */
   @apply px-4;
   @apply py-2;
+  color: #6e93c0;
 }
 
 .border-hairline {

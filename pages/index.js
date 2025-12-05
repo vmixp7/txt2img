@@ -62,6 +62,7 @@ export default function Home(props) {
   const [selectedPrompts, setSelectedPrompts] = useState(new Set());
   const loraGirls = ['aya', '白坂美杏', 'IU', '劉亦菲', '李珠垠', 'aodaivn', 'selina', '心兒', '沙宣', 'abby'];
   const promptInputRef = useRef(null);
+  const promptFormRef = useRef(null);
 
 
   // set the initial image from a random seed
@@ -514,6 +515,13 @@ export default function Home(props) {
           { image: prediction.url },
         ])
       );
+
+      // 滑動到 start 按鈕位置，確保不被 footer 遮住
+      setTimeout(() => {
+        if (promptFormRef.current) {
+          promptFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
       // }
     } catch (error) {
       console.log("node server err---------", error);
@@ -634,6 +642,7 @@ export default function Home(props) {
           onSubmit={handleSubmit}
           disabled={isProcessing}
           inputRef={promptInputRef}
+          formRef={promptFormRef}
           error={error}
         />
 
@@ -647,6 +656,7 @@ export default function Home(props) {
               className="close"
               type="button"
               onClick={() => setModalOpen(!modalOpen)}
+              style={{ fontSize: '2.5rem', lineHeight: '1' }}
             >
               <span aria-hidden={true}>×</span>
             </button>
@@ -685,6 +695,7 @@ export default function Home(props) {
               className="close"
               type="button"
               onClick={() => setLoginOpen(!loginOpen)}
+              style={{ fontSize: '2.5rem', lineHeight: '1' }}
             >
               <span aria-hidden={true}>×</span>
             </button>
@@ -720,6 +731,7 @@ export default function Home(props) {
               className="close"
               type="button"
               onClick={() => setSettingOpen(!settingOpen)}
+              style={{ fontSize: '2.5rem', lineHeight: '1' }}
             >
               <span aria-hidden={true}>×</span>
             </button>
@@ -983,6 +995,7 @@ export default function Home(props) {
               className="close"
               type="button"
               onClick={() => setPromptOpen(!promptOpen)}
+              style={{ fontSize: '2.5rem', lineHeight: '1' }}
             >
               <span aria-hidden={true}>×</span>
             </button>
