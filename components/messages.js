@@ -10,16 +10,17 @@ export default function Messages({ events, isProcessing, onUndo, downloadImage})
 
   const messagesEndRef = useRef(null);
 
-  useEffect(() => {
-    if (events.length > 2) {
-        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+  const handleImageLoad = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [events.length]);
+  };
 
   return (
     <section className="container w-full">
       {events.map((ev, index) => {
         if (ev.image) {
+          const isLatestImage = index === events.filter(e => e.image).length - 1;
           return (
             <Fragment key={"image-" + index}>
               <Message sender="replicate" shouldFillWidth>
@@ -34,6 +35,7 @@ export default function Messages({ events, isProcessing, onUndo, downloadImage})
                   priority={true}
                   className="w-full h-auto rounded-lg"
                   src={ev.image}
+                  onLoad={isLatestImage ? handleImageLoad : undefined}
                 />
 
                 {onUndo && index >= 0 && (
