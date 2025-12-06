@@ -16,6 +16,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Verify SSH key secret
+      run: |
+        if [ -z "${{ secrets.TEN_COLOR_PEM }}" ]; then
+          echo "❌ Secret TEN_COLOR_PEM is empty!"
+          exit 1
+        else
+          # 顯示前 10 個字元和長度驗證
+          echo "✅ Secret TEN_COLOR_PEM is set"
+          echo "First 10 chars: ${ { secrets.TEN_COLOR_PEM } :0:10 }"
+          echo "Length: $(echo "${{ secrets.TEN_COLOR_PEM }}" | wc -c) characters"
+        fi
+
     - name: Checkout repo
       uses: actions/checkout@v4
 
