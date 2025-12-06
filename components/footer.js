@@ -29,18 +29,18 @@ export default function Footer({ events, startOver, handleImageDropped, settingP
     >
       <div className="text-center bg-gray-700 text-white">
 
-        <button className="lil-button text-white" onClick={settingPrompt}>
+        <button className="lil-button text-white bg-transparent hover:bg-transparent" onClick={settingPrompt}>
           <SettingsIcon className="icon" />
           人物
         </button>
 
-        <button className="lil-button text-white" onClick={settingPromptOpen}>
+        <button className="lil-button text-white bg-transparent hover:bg-transparent" onClick={settingPromptOpen}>
           <IconSquareMenu className="icon" />
           Prompt
         </button>
 
         {events.length > 1 && (
-          <button className="lil-button text-white" onClick={startOver}>
+          <button className="lil-button text-white bg-transparent hover:bg-transparent" onClick={startOver}>
             <StartOverIcon className="icon" />
             清除
           </button>

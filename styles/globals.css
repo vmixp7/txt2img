@@ -29,10 +29,19 @@ textarea {
 .lil-button {
   @apply inline-block;
   @apply text-xs;
-  @apply text-gray-500;
+  @apply text-white;
   @apply rounded-md;
   @apply py-2;
   @apply mx-3;
+  @apply bg-blue-800;
+  @apply hover:bg-blue-900;
+  @apply cursor-pointer;
+}
+
+/* Override for specific buttons that need different colors */
+.lil-button.btn-no-bg {
+  @apply bg-transparent;
+  @apply hover:bg-transparent;
 }
 
 .lil-text {
@@ -42,7 +51,7 @@ textarea {
 
 .lil-text a {
   @apply text-gray-800;
-  @apply underline;
+  @apply no-underline;
 }
 
 .icon {
@@ -61,9 +70,35 @@ textarea {
 
 .prose a {
   @apply text-gray-600;
-  @apply underline;
+  @apply no-underline;
 }
 
 .text_right_20 {
   padding-right: 20px
+}
+
+/* Override Bootstrap button colors to deep blue */
+.btn-primary {
+  background-color: #1e40af !important;
+  border-color: #1e40af !important;
+}
+
+.btn-primary:hover {
+  background-color: #1e3a8a !important;
+  border-color: #1e3a8a !important;
+}
+
+.btn-secondary {
+  background-color: #1e40af !important;
+  border-color: #1e40af !important;
+}
+
+.btn-secondary:hover {
+  background-color: #1e3a8a !important;
+  border-color: #1e3a8a !important;
+}
+
+/* Remove underline from all links */
+a {
+  text-decoration: none !important;
 }
