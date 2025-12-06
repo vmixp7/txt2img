@@ -18,7 +18,7 @@ jobs:
     steps:
     - name: Verify SSH key secret
       run: |
-        if [ -z "${{ secrets.TEN_COLOR_PEM }}" ]; then
+        if [ -z "${{ secrets.TEST_SECRET }}" ]; then
           echo "❌ Secret TEN_COLOR_PEM is empty!"
           exit 1
         else
