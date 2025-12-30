@@ -17,7 +17,7 @@ import { Input, Button, Modal, ModalBody, ModalFooter, Container, Row, Col } fro
 import getConfig from 'next/config'
 import { replace } from "lodash";
 
-export const appName = "AI美女產生器";
+export const appName = "AI美女生成";
 export const appSubtitle = "輸入中文或英文描述,創造你的AI女友";
 export const appMetaDescription = "AI, text2image, txt2img, word to image, art, stable diffustion, sexy girl, beautiful girl, ai girl, genetate, chinese, 中文, 中文文生圖, 文字產生圖片, 文字產生美女圖, AI美女, AI女友";
 
@@ -987,6 +987,9 @@ export default function Home(props) {
         <div className="mx-auto w-full">
           {error && <p className="bold text-red-500 pb-5">{error}</p>}
         </div>
+
+        <script async="async" data-cfasync="false" src="https://pl28362562.effectivegatecpm.com/c3e3f8e40869d56ff09454c6aba89c4f/invoke.js"></script>
+        <div id="container-c3e3f8e40869d56ff09454c6aba89c4f"></div>
 
         <Footer
           events={events}
