@@ -576,7 +576,13 @@ export default function Home(props) {
 
       <Navbar />
 
+
+
       <main className="max-w-[700px] mx-auto mt-8">
+
+        <script async="async" data-cfasync="false" src="https://pl28362562.effectivegatecpm.com/c3e3f8e40869d56ff09454c6aba89c4f/invoke.js"></script>
+        <div id="container-c3e3f8e40869d56ff09454c6aba89c4f"></div>
+
         <hgroup className="pt-8">
           <p className="text-center text-lg opacity-60 m-6">
             {appSubtitle}
@@ -1036,10 +1042,6 @@ export default function Home(props) {
             </button>
           </ModalBody>
         </Modal>
-
-        <script async="async" data-cfasync="false" src="https://pl28362562.effectivegatecpm.com/c3e3f8e40869d56ff09454c6aba89c4f/invoke.js"></script>
-        <div id="container-c3e3f8e40869d56ff09454c6aba89c4f"></div>
-
 
         <Footer
           events={events}
