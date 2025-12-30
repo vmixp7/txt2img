@@ -41,7 +41,6 @@ export default function Home(props) {
   const [predictions, setPredictions] = useState([]);
   const [error, setError] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [showAd, setShowAd] = useState(false);
   const [seed] = useState(getRandomSeed());
   const [initialPrompt, setInitialPrompt] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
@@ -74,18 +73,6 @@ export default function Home(props) {
     ReactGA.send("/");
     setDataLayer(dataLayer.push('js', new Date()))
   }, [seed.image]);
-
-  // 初始化 AdSense
-  useEffect(() => {
-    if (showAd && typeof window !== 'undefined') {
-      try {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-      } catch (e) {
-        console.error('AdSense error:', e);
-      }
-    }
-  }, [showAd]);
-
 
   const setAllowStatus = () => {
     allow = true;
@@ -187,6 +174,18 @@ export default function Home(props) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // 加載monetag廣告腳本
+    if (typeof window !== 'undefined') {
+      if (!document.querySelector('script[data-zone="10395350"]')) {
+        const script = document.createElement('script');
+        script.src = 'https://al5sm.com/tag.min.js';
+        script.dataset.zone = '10395350';
+        script.async = true;
+        document.body.appendChild(script);
+      }
+    }
+
     // if (!allow) {
     //   setModalOpen(!modalOpen);
     //   return;
@@ -215,7 +214,6 @@ export default function Home(props) {
 
     setError(null);
     setIsProcessing(true);
-    setShowAd(true);
 
     const adStartTime = Date.now();
 
@@ -255,7 +253,6 @@ export default function Home(props) {
             const transObj = await gtres.json();
             console.log("translate res--", transObj);
             if (gtres.status > 201 || transObj.data == undefined) {
-              setShowAd(false);
               setIsProcessing(false);
               setError('翻譯失敗,請改用英文輸入');
               return;
@@ -491,7 +488,6 @@ export default function Home(props) {
           await sleep(remainingTime);
         }
 
-        setShowAd(false);
         setIsProcessing(false);
         setError(prediction.detail);
         return;
@@ -505,7 +501,6 @@ export default function Home(props) {
         await sleep(remainingTime);
       }
 
-      setShowAd(false);
       // if (prediction.images.length > 0) {
       //   console.log('succeeded--------------------');
       //   const base64Img = `data:image/png;base64,${prediction.images[0]}`;
@@ -527,7 +522,6 @@ export default function Home(props) {
         await sleep(remainingTime);
       }
 
-      setShowAd(false);
       setIsProcessing(false);
       setError(error.message);
     }
@@ -579,7 +573,6 @@ export default function Home(props) {
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-H34DW6JEZ8"></script>
         <script async src="https://www.googletagmanager.com/gtag/js?id=AW-11283751030"></script>
         <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2413594650942060" crossOrigin="anonymous"></script>
       </Head>
 
       <Navbar />
@@ -1048,6 +1041,7 @@ export default function Home(props) {
         <script async="async" data-cfasync="false" src="https://pl28362562.effectivegatecpm.com/c3e3f8e40869d56ff09454c6aba89c4f/invoke.js"></script>
         <div id="container-c3e3f8e40869d56ff09454c6aba89c4f"></div>
 
+
         <Footer
           events={events}
           startOver={startOver}
@@ -1056,26 +1050,6 @@ export default function Home(props) {
           settingPromptOpen={settingPromptOpen}
         />
       </main>
-
-      {showAd && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 z-[9999] flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg max-w-2xl mx-4">
-            <div className="text-center mb-4">
-              <h3 className="text-xl font-bold mb-2">正在生成圖片...</h3>
-              <p className="text-gray-600">請稍候，廣告將在 5 秒後自動關閉</p>
-            </div>
-            {/* Google AdSense 廣告位 */}
-            <div className="ad-container">
-              <ins className="adsbygoogle"
-                style={{ display: 'block' }}
-                data-ad-client="ca-pub-2413594650942060"
-                data-ad-slot="7614847274"
-                data-ad-format="auto"
-                data-full-width-responsive="true"></ins>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
