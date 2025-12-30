@@ -1,5 +1,5 @@
 import { Download as DownloadIcon } from "lucide-react";
-import Image from "next/image";
+import Image from "next/future/image";
 import { Fragment, useEffect, useRef } from "react";
 import PulseLoader from "react-spinners/PulseLoader";
 import Message from "./message";
@@ -10,17 +10,16 @@ export default function Messages({ events, isProcessing, onUndo, downloadImage }
 
   const messagesEndRef = useRef(null);
 
-  const handleImageLoad = () => {
-    if (messagesEndRef.current) {
+  useEffect(() => {
+    if (events.length > 2) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  };
+  }, [events.length]);
 
   return (
     <section className="container w-full">
       {events.map((ev, index) => {
         if (ev.image) {
-          const isLatestImage = index === events.filter(e => e.image).length - 1;
           return (
             <Fragment key={"image-" + index}>
               <Message sender="replicate" shouldFillWidth>
@@ -35,13 +34,12 @@ export default function Messages({ events, isProcessing, onUndo, downloadImage }
                   priority={true}
                   className="w-full h-auto rounded-lg"
                   src={ev.image}
-                  onLoad={isLatestImage ? handleImageLoad : undefined}
                 />
 
                 {onUndo && index >= 0 && (
                   <div className="mt-2 text-right">
                     <button
-                      className="lil-button !bg-transparent hover:!bg-transparent !text-gray-700 hover:!text-gray-900"
+                      className="lil-button"
                       onClick={() => {
                         downloadImage(ev.image);
                       }}

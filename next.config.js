@@ -25,6 +25,11 @@ const nextConfig = {
       "111.185.143.98",
     ],
   },
+  experimental: {
+    images: {
+      allowFutureImage: true,
+    },
+  },
   async redirects() {
     return [
       {

@@ -29,12 +29,10 @@ textarea {
 .lil-button {
   @apply inline-block;
   @apply text-xs;
-  @apply text-white;
+  @apply text-black;
   @apply rounded-md;
   @apply py-2;
   @apply mx-3;
-  @apply bg-blue-800;
-  @apply hover:bg-blue-900;
   @apply cursor-pointer;
 }
 
