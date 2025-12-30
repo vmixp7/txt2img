@@ -1045,6 +1045,9 @@ export default function Home(props) {
           </ModalBody>
         </Modal>
 
+        <script async="async" data-cfasync="false" src="https://pl28362562.effectivegatecpm.com/c3e3f8e40869d56ff09454c6aba89c4f/invoke.js"></script>
+        <div id="container-c3e3f8e40869d56ff09454c6aba89c4f"></div>
+
         <Footer
           events={events}
           startOver={startOver}
