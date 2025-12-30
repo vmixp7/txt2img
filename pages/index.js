@@ -1,5 +1,4 @@
 import Image from "next/image";
-// import Image from "next/future/image";
 import loginIcon from "../public/login.png";
 import Messages from "components/messages";
 import PromptForm from "components/prompt-form";

@@ -1,12 +1,12 @@
 import { Download as DownloadIcon } from "lucide-react";
-import Image from "next/future/image";
+import Image from "next/image";
 import { Fragment, useEffect, useRef } from "react";
 import PulseLoader from "react-spinners/PulseLoader";
 import Message from "./message";
 
 
 
-export default function Messages({ events, isProcessing, onUndo, downloadImage}) {
+export default function Messages({ events, isProcessing, onUndo, downloadImage }) {
 
   const messagesEndRef = useRef(null);
 
