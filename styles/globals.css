@@ -29,11 +29,10 @@ textarea {
 .lil-button {
   @apply inline-block;
   @apply text-xs;
-  @apply text-black;
+  @apply text-gray-500;
   @apply rounded-md;
   @apply py-2;
   @apply mx-3;
-  @apply cursor-pointer;
 }
 
 /* Override for specific buttons that need different colors */
