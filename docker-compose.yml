@@ -12,6 +12,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
+      - NODE_OPTIONS=--max-old-space-size=256
     # 如果需要掛載環境變量文件
     # env_file:
     #   - .env.production

@@ -2,13 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
-input, textarea {
+body {
+  background-color: #ffffff !important;
+}
+
+input,
+textarea {
   @apply border;
   @apply border-solid;
   @apply border-gray-300;
   /* @apply rounded-md; */
   @apply px-4;
   @apply py-2;
+  color: #6e93c0;
 }
 
 .border-hairline {
@@ -29,6 +35,12 @@ input, textarea {
   @apply mx-3;
 }
 
+/* Override for specific buttons that need different colors */
+.lil-button.btn-no-bg {
+  @apply bg-transparent;
+  @apply hover:bg-transparent;
+}
+
 .lil-text {
   @apply text-xs;
   @apply text-gray-500;
@@ -36,7 +48,7 @@ input, textarea {
 
 .lil-text a {
   @apply text-gray-800;
-  @apply underline;
+  @apply no-underline;
 }
 
 .icon {
@@ -55,9 +67,35 @@ input, textarea {
 
 .prose a {
   @apply text-gray-600;
-  @apply underline;
+  @apply no-underline;
 }
 
 .text_right_20 {
   padding-right: 20px
+}
+
+/* Override Bootstrap button colors to deep blue */
+.btn-primary {
+  background-color: #1e40af !important;
+  border-color: #1e40af !important;
+}
+
+.btn-primary:hover {
+  background-color: #1e3a8a !important;
+  border-color: #1e3a8a !important;
+}
+
+.btn-secondary {
+  background-color: #1e40af !important;
+  border-color: #1e40af !important;
+}
+
+.btn-secondary:hover {
+  background-color: #1e3a8a !important;
+  border-color: #1e3a8a !important;
+}
+
+/* Remove underline from all links */
+a {
+  text-decoration: none !important;
 }

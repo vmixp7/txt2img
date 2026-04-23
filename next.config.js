@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   publicRuntimeConfig: {
-    prodApiHost: 'http://wa59lhsdapi.sexygirl.ai:7860',
+    prodApiHost: 'http://111.185.143.98:8188',
     devApiHost: 'http://111.185.143.98:8188',
     googleApiKey: 'AIzaSyC4KNhzUBgTdjICbZY4U7Ni3gkL7Jm4oVs',
     firebase: {

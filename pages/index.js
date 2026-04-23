@@ -1,5 +1,4 @@
 import Image from "next/image";
-// import Image from "next/future/image";
 import loginIcon from "../public/login.png";
 import Messages from "components/messages";
 import PromptForm from "components/prompt-form";
@@ -41,7 +40,6 @@ export default function Home(props) {
   const [predictions, setPredictions] = useState([]);
   const [error, setError] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [showAd, setShowAd] = useState(false);
   const [seed] = useState(getRandomSeed());
   const [initialPrompt, setInitialPrompt] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
@@ -59,8 +57,10 @@ export default function Home(props) {
     setPrompt: "",
   });
   const [selected, setSelected] = useState("flux_aya");
+  const [selectedPrompts, setSelectedPrompts] = useState(new Set());
   const loraGirls = ['aya', '白坂美杏', 'IU', '劉亦菲', '李珠垠', 'aodaivn', 'selina', '心兒', '沙宣', 'abby'];
   const promptInputRef = useRef(null);
+  const promptFormRef = useRef(null);
 
 
   // set the initial image from a random seed
@@ -72,18 +72,6 @@ export default function Home(props) {
     ReactGA.send("/");
     setDataLayer(dataLayer.push('js', new Date()))
   }, [seed.image]);
-
-  // 初始化 AdSense
-  useEffect(() => {
-    if (showAd && typeof window !== 'undefined') {
-      try {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-      } catch (e) {
-        console.error('AdSense error:', e);
-      }
-    }
-  }, [showAd]);
-
 
   const setAllowStatus = () => {
     allow = true;
@@ -97,18 +85,29 @@ export default function Home(props) {
   };
 
   const handlePrompt = (val) => {
+    // Track selected prompt (except 'custom')
+    if (val !== 'custom') {
+      // Replace the Set with only the new selection to restore other colors
+      setSelectedPrompts(new Set([val]));
+    } else {
+      // Clear all selections for custom
+      setSelectedPrompts(new Set());
+    }
+
     if (val === 'custom') {
       // 自訂選項：清空輸入框
       setInitialPrompt("");
       setPrevPromptEN("");
       setPrevPromptTW("");
       setPromptOpen(false);
-      // 聚焦到輸入框
+      // 聚焦到輸入框 - 延長延遲以確保 modal 完全關閉
       setTimeout(() => {
         if (promptInputRef.current) {
           promptInputRef.current.focus();
+          // 額外確保焦點保持
+          promptInputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-      }, 100);
+      }, 350);
     } else {
       // 預設咒語
       const promptText = promptTemplates[val] || "";
@@ -174,6 +173,18 @@ export default function Home(props) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // 加載monetag廣告腳本
+    if (typeof window !== 'undefined') {
+      if (!document.querySelector('script[data-zone="10395350"]')) {
+        const script = document.createElement('script');
+        script.src = 'https://al5sm.com/tag.min.js';
+        script.dataset.zone = '10395350';
+        script.async = true;
+        document.body.appendChild(script);
+      }
+    }
+
     // if (!allow) {
     //   setModalOpen(!modalOpen);
     //   return;
@@ -202,7 +213,6 @@ export default function Home(props) {
 
     setError(null);
     setIsProcessing(true);
-    setShowAd(true);
 
     const adStartTime = Date.now();
 
@@ -242,7 +252,6 @@ export default function Home(props) {
             const transObj = await gtres.json();
             console.log("translate res--", transObj);
             if (gtres.status > 201 || transObj.data == undefined) {
-              setShowAd(false);
               setIsProcessing(false);
               setError('翻譯失敗,請改用英文輸入');
               return;
@@ -478,7 +487,6 @@ export default function Home(props) {
           await sleep(remainingTime);
         }
 
-        setShowAd(false);
         setIsProcessing(false);
         setError(prediction.detail);
         return;
@@ -492,7 +500,6 @@ export default function Home(props) {
         await sleep(remainingTime);
       }
 
-      setShowAd(false);
       // if (prediction.images.length > 0) {
       //   console.log('succeeded--------------------');
       //   const base64Img = `data:image/png;base64,${prediction.images[0]}`;
@@ -514,7 +521,6 @@ export default function Home(props) {
         await sleep(remainingTime);
       }
 
-      setShowAd(false);
       setIsProcessing(false);
       setError(error.message);
     }
@@ -566,12 +572,17 @@ export default function Home(props) {
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-H34DW6JEZ8"></script>
         <script async src="https://www.googletagmanager.com/gtag/js?id=AW-11283751030"></script>
         <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2413594650942060" crossOrigin="anonymous"></script>
       </Head>
 
       <Navbar />
 
+
+
       <main className="max-w-[700px] mx-auto mt-8">
+
+        <script async="async" data-cfasync="false" src="https://pl28362562.effectivegatecpm.com/c3e3f8e40869d56ff09454c6aba89c4f/invoke.js"></script>
+        <div id="container-c3e3f8e40869d56ff09454c6aba89c4f"></div>
+
         <hgroup className="pt-8">
           <p className="text-center text-lg opacity-60 m-6">
             {appSubtitle}
@@ -622,6 +633,7 @@ export default function Home(props) {
           onSubmit={handleSubmit}
           disabled={isProcessing}
           inputRef={promptInputRef}
+          formRef={promptFormRef}
           error={error}
         />
 
@@ -635,6 +647,7 @@ export default function Home(props) {
               className="close"
               type="button"
               onClick={() => setModalOpen(!modalOpen)}
+              style={{ fontSize: '2.5rem', lineHeight: '1' }}
             >
               <span aria-hidden={true}>×</span>
             </button>
@@ -673,6 +686,7 @@ export default function Home(props) {
               className="close"
               type="button"
               onClick={() => setLoginOpen(!loginOpen)}
+              style={{ fontSize: '2.5rem', lineHeight: '1' }}
             >
               <span aria-hidden={true}>×</span>
             </button>
@@ -708,6 +722,7 @@ export default function Home(props) {
               className="close"
               type="button"
               onClick={() => setSettingOpen(!settingOpen)}
+              style={{ fontSize: '2.5rem', lineHeight: '1' }}
             >
               <span aria-hidden={true}>×</span>
             </button>
@@ -971,55 +986,56 @@ export default function Home(props) {
               className="close"
               type="button"
               onClick={() => setPromptOpen(!promptOpen)}
+              style={{ fontSize: '2.5rem', lineHeight: '1' }}
             >
               <span aria-hidden={true}>×</span>
             </button>
           </div>
           <ModalBody className="text-center bg-sky-50">
             <button
-              className="text-center mb-3 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-gradient-to-r from-purple-500 to-blue-500 text-white font-bold hover:from-purple-600 hover:to-blue-600 focus:from-purple-600 focus:to-blue-600 py-2 px-4 border-0 rounded shadow-lg"
+              className="text-center mb-3 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-blue-800 text-white font-bold hover:bg-blue-900 focus:bg-blue-900 py-2 px-4 border-0 rounded shadow-lg"
               onClick={() => handlePrompt("custom")}
             >
               ✨ 自訂咒語
             </button>
             <button
-              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-800 font-semibold hover:text-white focus:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("a") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
               onClick={() => handlePrompt("a")}
             >
               一名女孩身穿黑色短裙，上衣露出乳溝，撐著傘站在街上
             </button>
             <button
-              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-800 font-semibold hover:text-white focus:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("b") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
               onClick={() => handlePrompt("b")}
             >
               一位新娘身穿露胸婚紗。照片背景是教堂。她手捧一束紅色康乃馨。
             </button>
             <button
-              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-800 font-semibold hover:text-white focus:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("c") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
               onClick={() => handlePrompt("c")}
             >
               1位短髮女孩，在沙灘上穿著比基尼，擁有完美身材。
             </button>
             <button
-              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-800 font-semibold hover:text-white focus:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("d") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
               onClick={() => handlePrompt("d")}
             >
               一個女孩倚靠在一隻白色黑紋老虎身上，背景是森林裡的瀑布。
             </button>
             <button
-              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-800 font-semibold hover:text-white focus:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("e") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
               onClick={() => handlePrompt("e")}
             >
               一個賽車女郎戴著太陽眼鏡，穿著連身低胸皮衣。
             </button>
             <button
-              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-800 font-semibold hover:text-white focus:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("f") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
               onClick={() => handlePrompt("f")}
             >
               一位身穿魔法女裝的女士，身穿黑色長袖外套和黑色帽子，在霍格華茲城堡中，手持魔杖。
             </button>
             <button
-              className="text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-500 text-sky-500 font-semibold hover:text-blue-700 focus:text-blue-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-800 font-semibold hover:text-white focus:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("g") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
               onClick={() => handlePrompt("g")}
             >
               一位身穿黑紅肚皮舞服裝的女孩，背景是洞穴的岩壁由岩石構成，水面周圍環繞著植物和樹葉。
@@ -1035,26 +1051,6 @@ export default function Home(props) {
           settingPromptOpen={settingPromptOpen}
         />
       </main>
-
-      {showAd && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg max-w-2xl mx-4">
-            <div className="text-center mb-4">
-              <h3 className="text-xl font-bold mb-2">正在生成圖片...</h3>
-              <p className="text-gray-600">請稍候，廣告將在 5 秒後自動關閉</p>
-            </div>
-            {/* Google AdSense 廣告位 */}
-            <div className="ad-container">
-              <ins className="adsbygoogle"
-                style={{ display: 'block' }}
-                data-ad-client="ca-pub-2413594650942060"
-                data-ad-slot="7614847274"
-                data-ad-format="auto"
-                data-full-width-responsive="true"></ins>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -29,7 +29,7 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex">
             <Link href="/">
-              <a className="flex items-center text-xl font-bold text-gray-900 hover:text-blue-600">
+              <a className="flex items-center text-xl font-bold text-gray-900 hover:text-blue-800">
                 AI美女生成
               </a>
             </Link>
@@ -41,8 +41,8 @@ export default function Navbar() {
               <Link key={link.href} href={link.href}>
                 <a
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive(link.href)
-                    ? "bg-blue-600 text-white"
-                    : "text-gray-700 hover:bg-blue-100 hover:text-blue-600"
+                    ? "bg-blue-800 text-white"
+                    : "text-gray-700 hover:bg-blue-800 hover:text-white"
                     }`}
                 >
                   {link.label}
@@ -55,7 +55,7 @@ export default function Navbar() {
           <div className="flex items-center sm:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-white hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-800"
               aria-expanded="false"
             >
               <span className="sr-only">開啟選單</span>
@@ -90,7 +90,7 @@ export default function Navbar() {
               <h2 className="text-lg font-bold text-gray-900">選單</h2>
               <button
                 onClick={() => setMobileMenuOpen(false)}
-                className="p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-blue-100"
+                className="p-2 rounded-md text-gray-700 hover:text-white hover:bg-blue-800"
               >
                 <CloseIcon className="h-6 w-6" />
               </button>
@@ -104,8 +104,8 @@ export default function Navbar() {
                     <a
                       onClick={handleLinkClick}
                       className={`block px-4 py-3 rounded-md text-base font-medium transition-colors ${isActive(link.href)
-                        ? "bg-blue-600 text-white"
-                        : "text-gray-700 hover:bg-blue-100 hover:text-blue-600"
+                        ? "bg-blue-800 text-white"
+                        : "text-gray-700 hover:bg-blue-800 hover:text-white"
                         }`}
                     >
                       {link.label}

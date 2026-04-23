@@ -12,34 +12,35 @@ import Link from "next/link";
 export default function Footer({ events, startOver, handleImageDropped, settingPrompt, settingPromptOpen }) {
 
   return (
-    <footer className="w-full my-3"
+    <footer className="w-full"
       style={{
         position: 'fixed',
         bottom: 0,
         left: 0,
         width: '100%',
-        height: '40px',
-        backgroundColor: '#ffc107',
-        color: 'white',
+        height: '60px',
+        backgroundColor: '#374151',
+        color: '#ffffff',
         textAlign: 'center',
         lineHeight: '60px',
         zIndex: 1000,
+        margin: 0,
       }}
     >
-      <div className="text-center bg-blue-800 text-white">
+      <div className="text-center bg-gray-700 text-white">
 
-        <button className="lil-button text-white" onClick={settingPrompt}>
+        <button className="lil-button text-white bg-transparent hover:bg-transparent" onClick={settingPrompt}>
           <SettingsIcon className="icon" />
           人物
         </button>
 
-        <button className="lil-button text-white" onClick={settingPromptOpen}>
+        <button className="lil-button text-white bg-transparent hover:bg-transparent" onClick={settingPromptOpen}>
           <IconSquareMenu className="icon" />
           Prompt
         </button>
 
         {events.length > 1 && (
-          <button className="lil-button text-white" onClick={startOver}>
+          <button className="lil-button text-white bg-transparent hover:bg-transparent" onClick={startOver}>
             <StartOverIcon className="icon" />
             清除
           </button>

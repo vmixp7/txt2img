@@ -52,9 +52,9 @@ export default function Privacy() {
         
         <div className="text-center mt-10">
           <Link href="/">
-            <a className="bg-black text-white rounded-md text-small inline-block p-3 flex-none">
+            <a className="bg-blue-800 hover:bg-blue-900 text-white rounded-md text-small inline-block p-3 flex-none">
               <ArrowLeftIcon className="icon" />
-              Back to painting
+              Back
             </a>
           </Link>
         </div>

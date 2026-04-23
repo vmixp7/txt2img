@@ -6,13 +6,13 @@ import Message from "./message";
 
 
 
-export default function Messages({ events, isProcessing, onUndo, downloadImage}) {
+export default function Messages({ events, isProcessing, onUndo, downloadImage }) {
 
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
     if (events.length > 2) {
-        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [events.length]);
 

@@ -7,6 +7,7 @@ export default function PromptForm({
   onSubmit,
   disabled = false,
   inputRef = null,
+  formRef = null,
   error = null,
 }) {
   const [prompt, setPrompt] = useState();
@@ -27,7 +28,7 @@ export default function PromptForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="container animate-in fade-in duration-700">
+    <form ref={formRef} onSubmit={handleSubmit} className="container animate-in fade-in duration-700">
       {/* <Message sender="replicate" isSameSender> */}
       {/* <label htmlFor="prompt-input">
           {isFirstPrompt
@@ -44,7 +45,7 @@ export default function PromptForm({
           name="prompt"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          placeholder="可輸入中文"
+          placeholder="prompt"
           className={`block w-full flex-grow${disabled ? " rounded-md" : " rounded-l-md"
             }`}
           disabled={disabled}
@@ -53,7 +54,7 @@ export default function PromptForm({
       <div className="flex mt-3">
         {disabled || (
           <button
-            className="bg-cyan-500 w-full text-white rounded-l-md rounded-r-md text-2xl inline-block p-3 flex-none"
+            className="bg-blue-800 hover:bg-blue-900 w-full text-white rounded-l-md rounded-r-md text-2xl inline-block p-3 flex-none"
             type="submit"
           >
             start
