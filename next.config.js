@@ -1,20 +1,20 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   publicRuntimeConfig: {
-    prodApiHost: 'http://111.185.143.98:8188',
-    devApiHost: 'http://111.185.143.98:8188',
-    googleApiKey: 'AIzaSyC4KNhzUBgTdjICbZY4U7Ni3gkL7Jm4oVs',
+    prodApiHost: "http://219.69.20.135:8188",
+    devApiHost: "http://219.69.20.135:8188",
+    googleApiKey: "AIzaSyC4KNhzUBgTdjICbZY4U7Ni3gkL7Jm4oVs",
     firebase: {
-      apiKey: 'AIzaSyC4KNhzUBgTdjICbZY4U7Ni3gkL7Jm4oVs',
+      apiKey: "AIzaSyC4KNhzUBgTdjICbZY4U7Ni3gkL7Jm4oVs",
       authDomain: "txt2img-c11dc.firebaseapp.com",
       projectId: "txt2img-c11dc",
       storageBucket: "txt2img-c11dc.appspot.com",
       messagingSenderId: "871308186906",
       appId: "1:871308186906:web:bbc726123522060766c8a3",
-      measurementId: "G-4939Y3NK3S"
-    }
+      measurementId: "G-4939Y3NK3S",
+    },
   },
-  output: 'standalone',
+  output: "standalone",
   reactStrictMode: true,
   swcMinify: true,
   images: {
@@ -22,7 +22,7 @@ const nextConfig = {
       "replicate.com",
       "replicate.delivery",
       "user-images.githubusercontent.com",
-      "111.185.143.98",
+      "219.69.20.135",
     ],
   },
   experimental: {
@@ -42,8 +42,8 @@ const nextConfig = {
         destination: "https://vercel.com/templates/next.js/paint-by-text",
         permanent: false,
       },
-    ]
-  }
+    ];
+  },
 };
 
 module.exports = nextConfig;

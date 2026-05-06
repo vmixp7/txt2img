@@ -5,34 +5,44 @@ import PromptForm from "components/prompt-form";
 import Navbar from "components/navbar";
 import Head from "next/head";
 import { useEffect, useState, useRef } from "react";
-import { v4 as uuidv4 } from 'uuid';
-import 'bootstrap/dist/css/bootstrap.css';
-import ReactGA from 'react-ga4';
-import Script from 'next/script'
+import { v4 as uuidv4 } from "uuid";
+import "bootstrap/dist/css/bootstrap.css";
+import ReactGA from "react-ga4";
+import Script from "next/script";
 import { LogOut as LogoutIcon } from "lucide-react";
 import Footer from "components/footer";
 import prepareImageFileForUpload from "lib/prepare-image-file-for-upload";
 import { getRandomSeed } from "lib/seeds";
-import { Input, Button, Modal, ModalBody, ModalFooter, Container, Row, Col } from "reactstrap";
-import getConfig from 'next/config'
+import {
+  Input,
+  Button,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  Container,
+  Row,
+  Col,
+} from "reactstrap";
+import getConfig from "next/config";
 import { replace } from "lodash";
 
 export const appName = "AI美女生成";
 export const appSubtitle = "輸入中文或英文描述,創造你的AI女友";
-export const appMetaDescription = "AI, text2image, txt2img, word to image, art, stable diffustion, sexy girl, beautiful girl, ai girl, genetate, chinese, 中文, 中文文生圖, 文字產生圖片, 文字產生美女圖, AI美女, AI女友";
+export const appMetaDescription =
+  "AI, text2image, txt2img, word to image, art, stable diffustion, sexy girl, beautiful girl, ai girl, genetate, chinese, 中文, 中文文生圖, 文字產生圖片, 文字產生美女圖, AI美女, AI女友";
 
-const { publicRuntimeConfig } = getConfig()
+const { publicRuntimeConfig } = getConfig();
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // 咒語映射表
 const promptTemplates = {
-  'a': "A Taiwanese girl, wearing a black short skirt and a top that reveals her cleavage, stands on the street holding an umbrella",
-  'b': "An Asian bride wears a breast-baring wedding dress. The sleeves were thin and the top showed off her cleavage. She has long legs and big breasts. The church is in the background. Holding a bouquet of red carnations",
-  'c': "1 pretty short-haired Korean female idol, wearing a one-piece swimsuit on the beach, with a perfect figure, looking at the audience",
-  'd': "flux-style,xuer White tiger,full body portrait,bright colors,a girl,yellow Chinese Hanfu,wide sleeves,hands,jewelry makeup,dynamic pose (leaning on a white tiger),dynamic atmosphere,cranes,waterfalls,forests,(light and shadow:1.2),colorful clouds,ray tracing,nature,(smoky:1.2),clear layers,rich details,sharp focus,professional lighting,full of film sense,glittering dark: medium aquamarine and radiant dark: yellow-green color scheme,contemporary drama atmosphere",
-  'e': "motor vehicle,ground vehicle,car,long hair,arm up,breasts,boots,outdoors,detached sleeves,clothing cutout,1girl,looking at viewer,cleavage cutout,sunglasses,hair ribbon,cleavage,beautiful japanese girl,race queen,the costume says \"GAT1\",medium shot,shoulderless costume,cowboy shot, ultra realistic, textured skin, remarkable detailed pupils, realistic dull skin noise, visible skin detail, skin fuzz, shot with cinematic camera",
-  'f': "High resolution photo of a woman in magical woman costumes, she is wearing black coat with long sleeves and white collared striped shirt with necktie and short black high-waist skirt with buttons, and black pantyhose black loafers and black hat,in hogwarts castle, heavy makeup, deep red lipstick, fake eylashes, mascara, holding magic wand, action stance",
-  'g': "a girl wearing a black and red belly dance costume, with intricate details and a graceful pose. Her hair is pulled back in a bun and she has a serene expression on her face, standing in a serene natural setting. She is looking directly at the camera with a calm and composed expression. The cave's walls are rocky, and there are plants and foliage surrounding the water"
+  a: "A Taiwanese girl, wearing a black short skirt and a top that reveals her cleavage, stands on the street holding an umbrella",
+  b: "An Asian bride wears a breast-baring wedding dress. The sleeves were thin and the top showed off her cleavage. She has long legs and big breasts. The church is in the background. Holding a bouquet of red carnations",
+  c: "1 pretty short-haired Korean female idol, wearing a one-piece swimsuit on the beach, with a perfect figure, looking at the audience",
+  d: "flux-style,xuer White tiger,full body portrait,bright colors,a girl,yellow Chinese Hanfu,wide sleeves,hands,jewelry makeup,dynamic pose (leaning on a white tiger),dynamic atmosphere,cranes,waterfalls,forests,(light and shadow:1.2),colorful clouds,ray tracing,nature,(smoky:1.2),clear layers,rich details,sharp focus,professional lighting,full of film sense,glittering dark: medium aquamarine and radiant dark: yellow-green color scheme,contemporary drama atmosphere",
+  e: 'motor vehicle,ground vehicle,car,long hair,arm up,breasts,boots,outdoors,detached sleeves,clothing cutout,1girl,looking at viewer,cleavage cutout,sunglasses,hair ribbon,cleavage,beautiful japanese girl,race queen,the costume says "GAT1",medium shot,shoulderless costume,cowboy shot, ultra realistic, textured skin, remarkable detailed pupils, realistic dull skin noise, visible skin detail, skin fuzz, shot with cinematic camera',
+  f: "High resolution photo of a woman in magical woman costumes, she is wearing black coat with long sleeves and white collared striped shirt with necktie and short black high-waist skirt with buttons, and black pantyhose black loafers and black hat,in hogwarts castle, heavy makeup, deep red lipstick, fake eylashes, mascara, holding magic wand, action stance",
+  g: "a girl wearing a black and red belly dance costume, with intricate details and a graceful pose. Her hair is pulled back in a bun and she has a serene expression on her face, standing in a serene natural setting. She is looking directly at the camera with a calm and composed expression. The cave's walls are rocky, and there are plants and foliage surrounding the water",
 };
 
 export default function Home(props) {
@@ -58,19 +68,29 @@ export default function Home(props) {
   });
   const [selected, setSelected] = useState("flux_aya");
   const [selectedPrompts, setSelectedPrompts] = useState(new Set());
-  const loraGirls = ['aya', '白坂美杏', 'IU', '劉亦菲', '李珠垠', 'aodaivn', 'selina', '心兒', '沙宣', 'abby'];
+  const loraGirls = [
+    "aya",
+    "白坂美杏",
+    "IU",
+    "劉亦菲",
+    "李珠垠",
+    "aodaivn",
+    "selina",
+    "心兒",
+    "沙宣",
+    "abby",
+  ];
   const promptInputRef = useRef(null);
   const promptFormRef = useRef(null);
-
 
   // set the initial image from a random seed
   useEffect(() => {
     // setEvents([{ image: seed.image }]);
     setEvents([]);
-    ReactGA.initialize('G-H34DW6JEZ8');
-    ReactGA.initialize('AW-11283751030');
+    ReactGA.initialize("G-H34DW6JEZ8");
+    ReactGA.initialize("AW-11283751030");
     ReactGA.send("/");
-    setDataLayer(dataLayer.push('js', new Date()))
+    setDataLayer(dataLayer.push("js", new Date()));
   }, [seed.image]);
 
   const setAllowStatus = () => {
@@ -81,12 +101,12 @@ export default function Home(props) {
 
   const handlSelected = (val) => {
     setSelected(val);
-    setSettingData(prevState => ({ ...prevState, lora: val }));
+    setSettingData((prevState) => ({ ...prevState, lora: val }));
   };
 
   const handlePrompt = (val) => {
     // Track selected prompt (except 'custom')
-    if (val !== 'custom') {
+    if (val !== "custom") {
       // Replace the Set with only the new selection to restore other colors
       setSelectedPrompts(new Set([val]));
     } else {
@@ -94,7 +114,7 @@ export default function Home(props) {
       setSelectedPrompts(new Set());
     }
 
-    if (val === 'custom') {
+    if (val === "custom") {
       // 自訂選項：清空輸入框
       setInitialPrompt("");
       setPrevPromptEN("");
@@ -105,7 +125,10 @@ export default function Home(props) {
         if (promptInputRef.current) {
           promptInputRef.current.focus();
           // 額外確保焦點保持
-          promptInputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          promptInputRef.current.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
         }
       }, 350);
     } else {
@@ -113,14 +136,14 @@ export default function Home(props) {
       const promptText = promptTemplates[val] || "";
       setInitialPrompt(promptText);
       setPrevPromptEN(promptText);
-      setSettingData(prevState => ({ ...prevState, setPrompt: '' }));
+      setSettingData((prevState) => ({ ...prevState, setPrompt: "" }));
       setPromptOpen(false);
     }
   };
 
   const base64ToBlob = (base64) => {
-    const parts = base64.split(';base64,');
-    const contentType = parts[0].split(':')[1];
+    const parts = base64.split(";base64,");
+    const contentType = parts[0].split(":")[1];
     const raw = window.atob(parts[1]);
     const rawLength = raw.length;
     const uInt8Array = new Uint8Array(rawLength);
@@ -143,19 +166,19 @@ export default function Home(props) {
   };
 
   const settingPrompt = async (e) => {
-    console.log('setLora--', settingData);
+    console.log("setLora--", settingData);
     setSettingOpen(!settingOpen);
   };
 
   const settingPromptOpen = async (e) => {
-    console.log('setPromptOpen--', promptOpen);
+    console.log("setPromptOpen--", promptOpen);
     setPromptOpen(!promptOpen);
   };
 
   const handleChange = async (e) => {
     console.log("pp");
     const { name, value } = e.target;
-    setSettingData(prevState => ({ ...prevState, [name]: value }));
+    setSettingData((prevState) => ({ ...prevState, [name]: value }));
   };
 
   const setLora = async (e) => {
@@ -163,23 +186,23 @@ export default function Home(props) {
   };
 
   function isEnglish(text) {
-    return /^[A-Za-z0-9\s.,!?'"():;\-]+$/.test(text)
+    return /^[A-Za-z0-9\s.,!?'"():;\-]+$/.test(text);
   }
 
   const handlePromptChange = (e) => {
     const prompt = e.target.value;
-    console.log('handlePromptChange--', prompt);
-  }
+    console.log("handlePromptChange--", prompt);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // 加載monetag廣告腳本
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       if (!document.querySelector('script[data-zone="10395350"]')) {
-        const script = document.createElement('script');
-        script.src = 'https://al5sm.com/tag.min.js';
-        script.dataset.zone = '10395350';
+        const script = document.createElement("script");
+        script.src = "https://al5sm.com/tag.min.js";
+        script.dataset.zone = "10395350";
         script.async = true;
         document.body.appendChild(script);
       }
@@ -189,7 +212,7 @@ export default function Home(props) {
     //   setModalOpen(!modalOpen);
     //   return;
     // }
-    console.log('user---------', props);
+    console.log("user---------", props);
 
     // if (props.user === null) {
     //   // setModalOpen(!modalOpen);
@@ -197,11 +220,11 @@ export default function Home(props) {
     //   return;
     // }
 
-    console.log('settingData--', settingData);
+    console.log("settingData--", settingData);
 
     let imgWidth = 512;
     let imgHeight = 768;
-    if (settingData.shape === '2') {
+    if (settingData.shape === "2") {
       imgWidth = 768;
       imgHeight = 512;
     }
@@ -209,7 +232,7 @@ export default function Home(props) {
     let prompt = e.target.prompt.value;
     const lastImage = events.findLast((ev) => ev.image)?.image;
 
-    console.log('input prompt------', prompt);
+    console.log("input prompt------", prompt);
 
     setError(null);
     setIsProcessing(true);
@@ -217,16 +240,17 @@ export default function Home(props) {
     const adStartTime = Date.now();
 
     try {
+      const promptDefault =
+        "(RAW photo, best quality),(realistic, photo-realistic:1),(high quality),(high detailed skin:0.5),(rim lighting:0.5),";
 
-      const promptDefault = "(RAW photo, best quality),(realistic, photo-realistic:1),(high quality),(high detailed skin:0.5),(rim lighting:0.5),";
-
-      if (prompt === '') {
-        prompt = "1 girl, upper_body ,brown hair,puffy eyes,gorgeous hair,brown eyes,Front,detailed face, beautiful eyes, shirt,(kpop idoll)";
+      if (prompt === "") {
+        prompt =
+          "1 girl, upper_body ,brown hair,puffy eyes,gorgeous hair,brown eyes,Front,detailed face, beautiful eyes, shirt,(kpop idoll)";
         setPrevPromptEN(prompt);
       } else {
         setPrevPromptTW(prompt);
-        console.log('prevPromptTW-----------', prevPromptTW);
-        console.log('isEnglish--', isEnglish(prompt));
+        console.log("prevPromptTW-----------", prevPromptTW);
+        console.log("isEnglish--", isEnglish(prompt));
 
         // google翻譯
         if (prompt !== prevPromptTW) {
@@ -234,17 +258,17 @@ export default function Home(props) {
             setPrevPromptEN(prompt);
           } else {
             console.log("----------------translate--------------");
-            let fromLang = 'zh-tw';
-            const toLang = 'en';
+            let fromLang = "zh-tw";
+            const toLang = "en";
             const GOOGLE_API_KEY = publicRuntimeConfig.googleApiKey;
             let gturl = `https://translation.googleapis.com/language/translate/v2?key=${GOOGLE_API_KEY}`;
-            gturl += '&q=' + encodeURI(prompt);
+            gturl += "&q=" + encodeURI(prompt);
             gturl += `&source=${fromLang}`;
             gturl += `&target=${toLang}`;
 
             const gtheaders = {
               "Content-Type": "application/json",
-            }
+            };
             const gtres = await fetch(gturl, {
               method: "GET",
               gtheaders,
@@ -253,12 +277,12 @@ export default function Home(props) {
             console.log("translate res--", transObj);
             if (gtres.status > 201 || transObj.data == undefined) {
               setIsProcessing(false);
-              setError('翻譯失敗,請改用英文輸入');
+              setError("翻譯失敗,請改用英文輸入");
               return;
             }
             prompt = transObj.data.translations[0].translatedText;
             setPrevPromptEN(prompt);
-            console.log('prevPromptEN-----------', prevPromptEN);
+            console.log("prevPromptEN-----------", prevPromptEN);
           }
         } else {
           //咒語沒變用上一次
@@ -291,180 +315,142 @@ export default function Home(props) {
       const max = 99999999999999;
       const seedNumber = Math.floor(Math.random() * (max - min + 1)) + min;
 
-      console.log('prompt======', prompt)
+      console.log("prompt======", prompt);
       setInitialPrompt(prompt);
 
       const body = {
-        "client_id": "533ef3a3-001",
-        "prompt": {
-          "3": {
-            "inputs": {
-              "seed": seedNumber,
-              "steps": 25,
-              "cfg": 1,
-              "sampler_name": "euler",
-              "scheduler": "ddim_uniform",
-              "denoise": 1,
-              "model": [
-                "33",
-                0
-              ],
-              "positive": [
-                "50",
-                0
-              ],
-              "negative": [
-                "28",
-                0
-              ],
-              "latent_image": [
-                "5",
-                0
-              ]
+        client_id: "533ef3a3-001",
+        prompt: {
+          3: {
+            inputs: {
+              seed: seedNumber,
+              steps: 25,
+              cfg: 1,
+              sampler_name: "euler",
+              scheduler: "ddim_uniform",
+              denoise: 1,
+              model: ["33", 0],
+              positive: ["50", 0],
+              negative: ["28", 0],
+              latent_image: ["5", 0],
             },
-            "class_type": "KSampler",
-            "_meta": {
-              "title": "KSampler"
-            }
+            class_type: "KSampler",
+            _meta: {
+              title: "KSampler",
+            },
           },
-          "5": {
-            "inputs": {
-              "width": imgWidth,
-              "height": imgHeight,
-              "batch_size": 1
+          5: {
+            inputs: {
+              width: imgWidth,
+              height: imgHeight,
+              batch_size: 1,
             },
-            "class_type": "EmptyLatentImage",
-            "_meta": {
-              "title": "Empty Latent Image"
-            }
+            class_type: "EmptyLatentImage",
+            _meta: {
+              title: "Empty Latent Image",
+            },
           },
-          "8": {
-            "inputs": {
-              "samples": [
-                "3",
-                0
-              ],
-              "vae": [
-                "26",
-                0
-              ]
+          8: {
+            inputs: {
+              samples: ["3", 0],
+              vae: ["26", 0],
             },
-            "class_type": "VAEDecode",
-            "_meta": {
-              "title": "VAE Decode"
-            }
+            class_type: "VAEDecode",
+            _meta: {
+              title: "VAE Decode",
+            },
           },
-          "24": {
-            "inputs": {
-              "unet_name": "flux1-dev-fp8.safetensors",
-              "weight_dtype": "fp8_e4m3fn"
+          24: {
+            inputs: {
+              unet_name: "flux1-dev-fp8.safetensors",
+              weight_dtype: "fp8_e4m3fn",
             },
-            "class_type": "UNETLoader",
-            "_meta": {
-              "title": "Load Diffusion Model"
-            }
+            class_type: "UNETLoader",
+            _meta: {
+              title: "Load Diffusion Model",
+            },
           },
-          "25": {
-            "inputs": {
-              "clip_name1": "t5xxl_fp8_e4m3fn.safetensors",
-              "clip_name2": "clip_l.safetensors",
-              "type": "flux"
+          25: {
+            inputs: {
+              clip_name1: "t5xxl_fp8_e4m3fn.safetensors",
+              clip_name2: "clip_l.safetensors",
+              type: "flux",
             },
-            "class_type": "DualCLIPLoader",
-            "_meta": {
-              "title": "DualCLIPLoader"
-            }
+            class_type: "DualCLIPLoader",
+            _meta: {
+              title: "DualCLIPLoader",
+            },
           },
-          "26": {
-            "inputs": {
-              "vae_name": "ae.safetensors"
+          26: {
+            inputs: {
+              vae_name: "ae.safetensors",
             },
-            "class_type": "VAELoader",
-            "_meta": {
-              "title": "Load VAE"
-            }
+            class_type: "VAELoader",
+            _meta: {
+              title: "Load VAE",
+            },
           },
-          "28": {
-            "inputs": {
-              "text": "",
-              "clip": [
-                "25",
-                0
-              ]
+          28: {
+            inputs: {
+              text: "",
+              clip: ["25", 0],
             },
-            "class_type": "CLIPTextEncode",
-            "_meta": {
-              "title": "CLIP Text Encode (Prompt)"
-            }
+            class_type: "CLIPTextEncode",
+            _meta: {
+              title: "CLIP Text Encode (Prompt)",
+            },
           },
-          "32": {
-            "inputs": {
-              "lora_name": "detailed_notrigger.safetensors",
-              "strength_model": 0.8,
-              "strength_clip": 1,
-              "model": [
-                "24",
-                0
-              ],
-              "clip": [
-                "25",
-                0
-              ]
+          32: {
+            inputs: {
+              lora_name: "detailed_notrigger.safetensors",
+              strength_model: 0.8,
+              strength_clip: 1,
+              model: ["24", 0],
+              clip: ["25", 0],
             },
-            "class_type": "LoraLoader",
-            "_meta": {
-              "title": "Load LoRA"
-            }
+            class_type: "LoraLoader",
+            _meta: {
+              title: "Load LoRA",
+            },
           },
-          "33": {
-            "inputs": {
-              "lora_name": settingData.lora + ".safetensors",
-              "strength_model": 0.85,
-              "strength_clip": 1,
-              "model": [
-                "32",
-                0
-              ],
-              "clip": [
-                "32",
-                1
-              ]
+          33: {
+            inputs: {
+              lora_name: settingData.lora + ".safetensors",
+              strength_model: 0.85,
+              strength_clip: 1,
+              model: ["32", 0],
+              clip: ["32", 1],
             },
-            "class_type": "LoraLoader",
-            "_meta": {
-              "title": "Load LoRA"
-            }
+            class_type: "LoraLoader",
+            _meta: {
+              title: "Load LoRA",
+            },
           },
-          "48": {
-            "inputs": {
-              "filename_prefix": "txt2img_" + Date.now(),
-              "images": [
-                "8",
-                0
-              ]
+          48: {
+            inputs: {
+              filename_prefix: "txt2img_" + Date.now(),
+              images: ["8", 0],
             },
-            "class_type": "SaveImage",
-            "_meta": {
-              "title": "Save Image"
-            }
+            class_type: "SaveImage",
+            _meta: {
+              title: "Save Image",
+            },
           },
-          "50": {
-            "inputs": {
-              "clip_l": "8K, detailed, best quality, skinny, long legs, full body shot, 1girl, suit, high heels,",
-              "t5xxl": prompt,
-              "guidance": 3.5,
-              "clip": [
-                "33",
-                1
-              ]
+          50: {
+            inputs: {
+              clip_l:
+                "8K, detailed, best quality, skinny, long legs, full body shot, 1girl, suit, high heels,",
+              t5xxl: prompt,
+              guidance: 3.5,
+              clip: ["33", 1],
             },
-            "class_type": "CLIPTextEncodeFlux",
-            "_meta": {
-              "title": "CLIPTextEncodeFlux"
-            }
-          }
-        }
-      }
+            class_type: "CLIPTextEncodeFlux",
+            _meta: {
+              title: "CLIPTextEncodeFlux",
+            },
+          },
+        },
+      };
 
       const response = await fetch("/api/v1/txt2img", {
         method: "POST",
@@ -474,10 +460,10 @@ export default function Home(props) {
         body: JSON.stringify(body),
       });
       const prediction = await response.json();
-      console.log('prediction=====', prediction);
+      console.log("prediction=====", prediction);
 
       if (response.status > 201) {
-        console.log('err1---------------', response);
+        console.log("err1---------------", response);
 
         // 確保廣告至少顯示 5 秒
         const adElapsedTime = Date.now() - adStartTime;
@@ -507,7 +493,7 @@ export default function Home(props) {
         myEvents.concat([
           // { image: prediction.output?.[prediction.output.length - 1] },
           { image: prediction.url },
-        ])
+        ]),
       );
       // }
     } catch (error) {
@@ -550,7 +536,7 @@ export default function Home(props) {
     //   }
     // }
     setIsProcessing(false);
-    setSettingData(prevState => ({ ...prevState, setPrompt: '' }));
+    setSettingData((prevState) => ({ ...prevState, setPrompt: "" }));
   };
 
   const startOver = async (e) => {
@@ -568,25 +554,30 @@ export default function Home(props) {
         <meta name="description" content={appMetaDescription} />
         <meta property="og:title" content={appName} />
         <meta property="og:description" content={appMetaDescription} />
-        <meta property="og:image" content="https://paintbytext.chat/opengraph.jpg" />
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-H34DW6JEZ8"></script>
-        <script async src="https://www.googletagmanager.com/gtag/js?id=AW-11283751030"></script>
-        <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+        <meta
+          property="og:image"
+          content="https://paintbytext.chat/opengraph.jpg"
+        />
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-H34DW6JEZ8"
+        ></script>
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=AW-11283751030"
+        ></script>
+        <script
+          src="https://apis.google.com/js/platform.js?onload=renderButton"
+          async
+          defer
+        ></script>
       </Head>
 
       <Navbar />
 
-
-
       <main className="max-w-[700px] mx-auto mt-8">
-
-        <script async="async" data-cfasync="false" src="https://pl28362562.effectivegatecpm.com/c3e3f8e40869d56ff09454c6aba89c4f/invoke.js"></script>
-        <div id="container-c3e3f8e40869d56ff09454c6aba89c4f"></div>
-
         <hgroup className="pt-8">
-          <p className="text-center text-lg opacity-60 m-6">
-            {appSubtitle}
-          </p>
+          <p className="text-center text-lg opacity-60 m-6">{appSubtitle}</p>
         </hgroup>
 
         <Messages
@@ -595,11 +586,11 @@ export default function Home(props) {
           onUndo={(index) => {
             setInitialPrompt(events[index - 1].prompt);
             setEvents(
-              events.slice(0, index - 1).concat(events.slice(index + 1))
+              events.slice(0, index - 1).concat(events.slice(index + 1)),
             );
           }}
           downloadImage={async (img) => {
-            console.log('downloadImage--', img);
+            console.log("downloadImage--", img);
             // download base64
             // const blob = base64ToBlob(img);
             // const url = URL.createObjectURL(blob);
@@ -613,13 +604,15 @@ export default function Home(props) {
             // URL.revokeObjectURL(url);
 
             // download http
-            const response = await fetch(`/api/proxy?url=${encodeURIComponent(img)}`);
+            const response = await fetch(
+              `/api/proxy?url=${encodeURIComponent(img)}`,
+            );
             const blob = await response.blob();
             const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
+            const link = document.createElement("a");
             link.href = url;
             const uuid = uuidv4().substr(0, 16);
-            link.download = uuid + '.png';
+            link.download = uuid + ".png";
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -647,7 +640,7 @@ export default function Home(props) {
               className="close"
               type="button"
               onClick={() => setModalOpen(!modalOpen)}
-              style={{ fontSize: '2.5rem', lineHeight: '1' }}
+              style={{ fontSize: "2.5rem", lineHeight: "1" }}
             >
               <span aria-hidden={true}>×</span>
             </button>
@@ -686,7 +679,7 @@ export default function Home(props) {
               className="close"
               type="button"
               onClick={() => setLoginOpen(!loginOpen)}
-              style={{ fontSize: '2.5rem', lineHeight: '1' }}
+              style={{ fontSize: "2.5rem", lineHeight: "1" }}
             >
               <span aria-hidden={true}>×</span>
             </button>
@@ -722,14 +715,14 @@ export default function Home(props) {
               className="close"
               type="button"
               onClick={() => setSettingOpen(!settingOpen)}
-              style={{ fontSize: '2.5rem', lineHeight: '1' }}
+              style={{ fontSize: "2.5rem", lineHeight: "1" }}
             >
               <span aria-hidden={true}>×</span>
             </button>
           </div>
           <ModalBody>
             <div className="mt-4">
-              <label className="block uppercase tracking-wide text-gray-700 font-bold mr-8" >
+              <label className="block uppercase tracking-wide text-gray-700 font-bold mr-8">
                 形狀
               </label>
               <input
@@ -753,13 +746,11 @@ export default function Home(props) {
                 checked={settingData.shape === "2"}
                 onChange={handleChange}
               />
-              <label htmlFor="shape2">
-                橫圖
-              </label>
+              <label htmlFor="shape2">橫圖</label>
             </div>
 
             <div className="mt-4">
-              <label className="block uppercase tracking-wide text-gray-700 font-bold mb-2" >
+              <label className="block uppercase tracking-wide text-gray-700 font-bold mb-2">
                 虛擬人物
               </label>
               {/* <select
@@ -798,7 +789,8 @@ export default function Home(props) {
                       width="100%"
                       height={150}
                       className={
-                        "lora_img " + (selected === "flux_aya" ? "opacity-100" : "")
+                        "lora_img " +
+                        (selected === "flux_aya" ? "opacity-100" : "")
                       }
                       aria-selected={selected === "flux_aya"}
                       onClick={(e) => {
@@ -814,7 +806,8 @@ export default function Home(props) {
                       width="100%"
                       height={150}
                       className={
-                        "lora_img " + (selected === "Flux_lora_IU" ? "opacity-100" : "")
+                        "lora_img " +
+                        (selected === "Flux_lora_IU" ? "opacity-100" : "")
                       }
                       aria-selected={selected === "Flux_lora_IU"}
                       onClick={(e) => {
@@ -830,7 +823,8 @@ export default function Home(props) {
                       width="100%"
                       height={150}
                       className={
-                        "lora_img " + (selected === "flux-dev-lora-lyf" ? "opacity-100" : "")
+                        "lora_img " +
+                        (selected === "flux-dev-lora-lyf" ? "opacity-100" : "")
                       }
                       aria-selected={selected === "flux-dev-lora-lyf"}
                       onClick={(e) => {
@@ -848,7 +842,10 @@ export default function Home(props) {
                       width="100%"
                       height={150}
                       className={
-                        "lora_img " + (selected === "Flux_lora_Lee-Ju-Eun" ? "opacity-100" : "")
+                        "lora_img " +
+                        (selected === "Flux_lora_Lee-Ju-Eun"
+                          ? "opacity-100"
+                          : "")
                       }
                       aria-selected={selected === "Flux_lora_Lee-Ju-Eun"}
                       onClick={(e) => {
@@ -864,7 +861,10 @@ export default function Home(props) {
                       width="100%"
                       height={150}
                       className={
-                        "lora_img " + (selected === "lisa_rank4_bf16-step01280" ? "opacity-100" : "")
+                        "lora_img " +
+                        (selected === "lisa_rank4_bf16-step01280"
+                          ? "opacity-100"
+                          : "")
                       }
                       aria-selected={selected === "lisa_rank4_bf16-step01280"}
                       onClick={(e) => {
@@ -872,7 +872,9 @@ export default function Home(props) {
                         handlSelected("lisa_rank4_bf16-step01280");
                       }}
                     />
-                    <p className="text_right_20 text-center text-sm">白坂美杏</p>
+                    <p className="text_right_20 text-center text-sm">
+                      白坂美杏
+                    </p>
                   </Col>
                   <Col>
                     <Image
@@ -880,7 +882,8 @@ export default function Home(props) {
                       width="100%"
                       height={150}
                       className={
-                        "lora_img " + (selected === "flux_lora_aodaivn7" ? "opacity-100" : "")
+                        "lora_img " +
+                        (selected === "flux_lora_aodaivn7" ? "opacity-100" : "")
                       }
                       aria-selected={selected === "flux_lora_aodaivn7"}
                       onClick={(e) => {
@@ -898,7 +901,8 @@ export default function Home(props) {
                       width="100%"
                       height={150}
                       className={
-                        "lora_img " + (selected === "flux-selina-000012" ? "opacity-100" : "")
+                        "lora_img " +
+                        (selected === "flux-selina-000012" ? "opacity-100" : "")
                       }
                       aria-selected={selected === "flux-selina-000012"}
                       onClick={(e) => {
@@ -914,7 +918,8 @@ export default function Home(props) {
                       width="100%"
                       height={150}
                       className={
-                        "lora_img " + (selected === "heart-000012" ? "opacity-100" : "")
+                        "lora_img " +
+                        (selected === "heart-000012" ? "opacity-100" : "")
                       }
                       aria-selected={selected === "heart-000012"}
                       onClick={(e) => {
@@ -930,9 +935,14 @@ export default function Home(props) {
                       width="100%"
                       height={150}
                       className={
-                        "lora_img " + (selected === "sashang_v1_rank4_bf16-step02560" ? "opacity-100" : "")
+                        "lora_img " +
+                        (selected === "sashang_v1_rank4_bf16-step02560"
+                          ? "opacity-100"
+                          : "")
                       }
-                      aria-selected={selected === "sashang_v1_rank4_bf16-step02560"}
+                      aria-selected={
+                        selected === "sashang_v1_rank4_bf16-step02560"
+                      }
                       onClick={(e) => {
                         e.preventDefault();
                         handlSelected("sashang_v1_rank4_bf16-step02560");
@@ -948,7 +958,8 @@ export default function Home(props) {
                       width="100%"
                       height={150}
                       className={
-                        "lora_img " + (selected === "flux-abby" ? "opacity-100" : "")
+                        "lora_img " +
+                        (selected === "flux-abby" ? "opacity-100" : "")
                       }
                       aria-selected={selected === "flux-abby"}
                       onClick={(e) => {
@@ -986,7 +997,7 @@ export default function Home(props) {
               className="close"
               type="button"
               onClick={() => setPromptOpen(!promptOpen)}
-              style={{ fontSize: '2.5rem', lineHeight: '1' }}
+              style={{ fontSize: "2.5rem", lineHeight: "1" }}
             >
               <span aria-hidden={true}>×</span>
             </button>
