@@ -23,7 +23,7 @@ export default function Privacy() {
         </p>
         <ol className="list-decimal">
           <li>收集的資訊</li>
-          <p>當您使用我們的網站時，由於在網站上放送google廣告，因此第三方可能會在使用者的瀏覽器中放置並讀取 Cookie，或是使用網路信標來收集資訊。
+          <p>當您使用我們的網站時，我們使用 Google Analytics 等第三方分析服務來了解網站的使用情況，這些服務可能會在使用者的瀏覽器中放置並讀取 Cookie，以收集匿名的瀏覽資訊。
               <a href='https://policies.google.com/technologies/partner-sites'>使用者瀏覽合作夥伴網站或使用其應用程式時，Google 將如何運用相關資料</a>
           </p>
         <li>使用的資訊</li>

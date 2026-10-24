@@ -8,13 +8,15 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isActive = (path) => {
-    return router.pathname === path;
+    return path === "/"
+      ? router.pathname === path
+      : router.pathname.startsWith(path);
   };
 
   const navLinks = [
-    { href: "/", label: "AI生成" },
+    { href: "/", label: "文生圖" },
+    { href: "/img2video", label: "圖生影片" },
     { href: "/about", label: "關於我們" },
-    { href: "/blog", label: "Blog" },
     { href: "/terms", label: "使用條款" },
     { href: "/privacy", label: "隱私政策" },
   ];

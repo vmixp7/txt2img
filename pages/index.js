@@ -4,6 +4,7 @@ import Messages from "components/messages";
 import PromptForm from "components/prompt-form";
 import Navbar from "components/navbar";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { useEffect, useState, useRef } from "react";
 import { v4 as uuidv4 } from "uuid";
 import "bootstrap/dist/css/bootstrap.css";
@@ -82,6 +83,50 @@ export default function Home(props) {
   ];
   const promptInputRef = useRef(null);
   const promptFormRef = useRef(null);
+  const router = useRouter();
+  // 生成中的任務: { promptId, controller }
+  const jobRef = useRef(null);
+
+  // 取消生成: 中止前端請求, 並通知 ComfyUI 刪除或中斷任務
+  const cancelGeneration = () => {
+    const job = jobRef.current;
+    if (!job) return;
+    jobRef.current = null;
+    job.controller.abort();
+    fetch("/api/v1/cancel", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: job.promptId }),
+      keepalive: true,
+    }).catch((e) => console.log("cancel err---------", e));
+    setIsProcessing(false);
+  };
+
+  // 生成中離開頁面就取消 (站內換頁, 關閉分頁, 重新整理)
+  useEffect(() => {
+    if (!isProcessing) return;
+
+    const cancelOnLeave = () => {
+      const job = jobRef.current;
+      if (!job) return;
+      jobRef.current = null;
+      const body = new Blob([JSON.stringify({ id: job.promptId })], { type: "application/json" });
+      navigator.sendBeacon("/api/v1/cancel", body);
+    };
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("pagehide", cancelOnLeave);
+    router.events.on("routeChangeStart", cancelOnLeave);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("pagehide", cancelOnLeave);
+      router.events.off("routeChangeStart", cancelOnLeave);
+    };
+  }, [isProcessing, router.events]);
 
   // set the initial image from a random seed
   useEffect(() => {
@@ -197,17 +242,6 @@ export default function Home(props) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 加載monetag廣告腳本
-    if (typeof window !== "undefined") {
-      if (!document.querySelector('script[data-zone="10395350"]')) {
-        const script = document.createElement("script");
-        script.src = "https://al5sm.com/tag.min.js";
-        script.dataset.zone = "10395350";
-        script.async = true;
-        document.body.appendChild(script);
-      }
-    }
-
     // if (!allow) {
     //   setModalOpen(!modalOpen);
     //   return;
@@ -237,7 +271,9 @@ export default function Home(props) {
     setError(null);
     setIsProcessing(true);
 
-    const adStartTime = Date.now();
+    // ComfyUI 接受自訂 prompt_id (UUID), 取消時用
+    const job = { promptId: uuidv4(), controller: new AbortController() };
+    jobRef.current = job;
 
     try {
       const promptDefault =
@@ -272,6 +308,7 @@ export default function Home(props) {
             const gtres = await fetch(gturl, {
               method: "GET",
               gtheaders,
+              signal: job.controller.signal,
             });
             const transObj = await gtres.json();
             console.log("translate res--", transObj);
@@ -457,33 +494,17 @@ export default function Home(props) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ ...body, prompt_id: job.promptId }),
+        signal: job.controller.signal,
       });
       const prediction = await response.json();
       console.log("prediction=====", prediction);
 
       if (response.status > 201) {
         console.log("err1---------------", response);
-
-        // 確保廣告至少顯示 5 秒
-        const adElapsedTime = Date.now() - adStartTime;
-        const remainingTime = Math.max(0, 5000 - adElapsedTime);
-
-        if (remainingTime > 0) {
-          await sleep(remainingTime);
-        }
-
         setIsProcessing(false);
         setError(prediction.detail);
         return;
-      }
-
-      // 確保廣告至少顯示 5 秒
-      const adElapsedTime = Date.now() - adStartTime;
-      const remainingTime = Math.max(0, 5000 - adElapsedTime);
-
-      if (remainingTime > 0) {
-        await sleep(remainingTime);
       }
 
       // if (prediction.images.length > 0) {
@@ -497,19 +518,13 @@ export default function Home(props) {
       );
       // }
     } catch (error) {
+      // 使用者取消, 狀態已在 cancelGeneration 處理
+      if (error.name === "AbortError") return;
       console.log("node server err---------", error);
-
-      // 確保廣告至少顯示 5 秒，即使發生錯誤
-      const adElapsedTime = Date.now() - adStartTime;
-      const remainingTime = Math.max(0, 5000 - adElapsedTime);
-
-      if (remainingTime > 0) {
-        await sleep(remainingTime);
-      }
-
       setIsProcessing(false);
       setError(error.message);
     }
+    if (jobRef.current === job) jobRef.current = null;
 
     // while (
     //   prediction.status !== "succeeded" &&
@@ -617,6 +632,11 @@ export default function Home(props) {
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
+          }}
+          onCancel={cancelGeneration}
+          makeVideo={(img) => {
+            const filename = new URL(img).searchParams.get("filename");
+            router.push(`/img2video?image=${encodeURIComponent(filename)}`);
           }}
         />
 
