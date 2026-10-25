@@ -10,7 +10,12 @@ import { v4 as uuidv4 } from "uuid";
 import "bootstrap/dist/css/bootstrap.css";
 import ReactGA from "react-ga4";
 import Script from "next/script";
-import { LogOut as LogoutIcon } from "lucide-react";
+import Link from "next/link";
+import {
+  LogOut as LogoutIcon,
+  Video as VideoIcon,
+  ChevronRight as ChevronRightIcon,
+} from "lucide-react";
 import Footer from "components/footer";
 import prepareImageFileForUpload from "lib/prepare-image-file-for-upload";
 import { getRandomSeed } from "lib/seeds";
@@ -110,7 +115,9 @@ export default function Home(props) {
       const job = jobRef.current;
       if (!job) return;
       jobRef.current = null;
-      const body = new Blob([JSON.stringify({ id: job.promptId })], { type: "application/json" });
+      const body = new Blob([JSON.stringify({ id: job.promptId })], {
+        type: "application/json",
+      });
       navigator.sendBeacon("/api/v1/cancel", body);
     };
     const handleBeforeUnload = (e) => {
@@ -591,6 +598,20 @@ export default function Home(props) {
       <Navbar />
 
       <main className="max-w-[700px] mx-auto mt-8">
+        {/* 新功能: 圖生影片 */}
+        <Link href="/img2video">
+          <a className="flex items-center gap-3 mx-4 px-4 py-3 rounded-lg bg-[#eaf6ff] border border-blue-200 text-blue-900 no-underline hover:bg-blue-100 transition-colors">
+            <VideoIcon className="h-5 w-5 shrink-0" />
+            <span className="flex-1 text-sm sm:text-base">
+              <span className="mr-2 px-1.5 py-0.5 rounded-full bg-orange-500 text-white text-[10px] font-bold align-middle">
+                NEW
+              </span>
+              新功能「圖生影片」上線! 上傳一張圖片, 讓它動起來
+            </span>
+            <ChevronRightIcon className="h-5 w-5 shrink-0" />
+          </a>
+        </Link>
+
         <hgroup className="pt-8">
           <p className="text-center text-lg opacity-60 m-6">{appSubtitle}</p>
         </hgroup>
@@ -1030,46 +1051,46 @@ export default function Home(props) {
               ✨ 自訂咒語
             </button>
             <button
-              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-800 font-semibold hover:text-white focus:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("a") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
-              onClick={() => handlePrompt("a")}
-            >
-              一名女孩身穿黑色短裙，上衣露出乳溝，撐著傘站在街上
-            </button>
-            <button
-              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-800 font-semibold hover:text-white focus:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("b") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
-              onClick={() => handlePrompt("b")}
-            >
-              一位新娘身穿露胸婚紗。照片背景是教堂。她手捧一束紅色康乃馨。
-            </button>
-            <button
-              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-800 font-semibold hover:text-white focus:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("c") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none hover:bg-blue-800 font-semibold hover:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("c") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
               onClick={() => handlePrompt("c")}
             >
               1位短髮女孩，在沙灘上穿著比基尼，擁有完美身材。
             </button>
             <button
-              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-800 font-semibold hover:text-white focus:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("d") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
-              onClick={() => handlePrompt("d")}
-            >
-              一個女孩倚靠在一隻白色黑紋老虎身上，背景是森林裡的瀑布。
-            </button>
-            <button
-              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-800 font-semibold hover:text-white focus:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("e") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none hover:bg-blue-800 font-semibold hover:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("e") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
               onClick={() => handlePrompt("e")}
             >
               一個賽車女郎戴著太陽眼鏡，穿著連身低胸皮衣。
             </button>
             <button
-              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-800 font-semibold hover:text-white focus:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("f") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none hover:bg-blue-800 font-semibold hover:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("a") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
+              onClick={() => handlePrompt("a")}
+            >
+              一名女孩身穿黑色短裙，上衣露出乳溝，撐著傘站在街上
+            </button>
+            <button
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none hover:bg-blue-800 font-semibold hover:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("b") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
+              onClick={() => handlePrompt("b")}
+            >
+              一位新娘身穿露胸婚紗。照片背景是教堂。她手捧一束紅色康乃馨。
+            </button>
+            <button
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none hover:bg-blue-800 font-semibold hover:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("f") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
               onClick={() => handlePrompt("f")}
             >
               一位身穿魔法女裝的女士，身穿黑色長袖外套和黑色帽子，在霍格華茲城堡中，手持魔杖。
             </button>
             <button
-              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-800 font-semibold hover:text-white focus:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("g") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none hover:bg-blue-800 font-semibold hover:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("g") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
               onClick={() => handlePrompt("g")}
             >
               一位身穿黑紅肚皮舞服裝的女孩，背景是洞穴的岩壁由岩石構成，水面周圍環繞著植物和樹葉。
+            </button>
+            <button
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none hover:bg-blue-800 font-semibold hover:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("d") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
+              onClick={() => handlePrompt("d")}
+            >
+              一個女孩倚靠在一隻白色黑紋老虎身上，背景是森林裡的瀑布。
             </button>
           </ModalBody>
         </Modal>

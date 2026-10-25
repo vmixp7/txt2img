@@ -1,4 +1,4 @@
-import { getApiHost } from "lib/comfyui";
+import { getApiHost, interruptJob } from "lib/comfyui";
 
 // 取消生成: 排隊中的從佇列刪除, 執行中的中斷
 // 前端離開頁面時用 navigator.sendBeacon 呼叫, 只接受 POST
@@ -42,11 +42,7 @@ export default async function handler(req, res) {
 
     // 確認正在執行的是這個任務才中斷, 避免中斷到別人的任務
     if (queue.queue_running?.some((item) => item[1] === id)) {
-      await fetch(`${API_HOST}/interrupt`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ prompt_id: id }),
-      });
+      await interruptJob(API_HOST, id);
       console.log("img2video cancel: interrupted---------", id);
       return res.status(200).json({ cancelled: "running" });
     }
