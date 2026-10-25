@@ -13,6 +13,6 @@ services:
     environment:
       - NODE_ENV=production
       - NODE_OPTIONS=--max-old-space-size=256
-    # 如果需要掛載環境變量文件
-    # env_file:
-    #   - .env.production
+    # 機密 (AWS 金鑰等) 放在伺服器上的 .env.local, 不會打包進映像檔
+    env_file:
+      - .env.local
