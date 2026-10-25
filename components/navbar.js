@@ -15,11 +15,18 @@ export default function Navbar() {
 
   const navLinks = [
     { href: "/", label: "文生圖" },
-    { href: "/img2video", label: "圖生影片" },
+    { href: "/img2video", label: "圖生影片", isNew: true },
     { href: "/about", label: "關於我們" },
     { href: "/terms", label: "使用條款" },
     { href: "/privacy", label: "隱私政策" },
   ];
+
+  // 新功能標籤
+  const NewBadge = () => (
+    <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-orange-500 text-white text-[10px] font-bold leading-none align-middle">
+      NEW
+    </span>
+  );
 
   const handleLinkClick = () => {
     setMobileMenuOpen(false);
@@ -48,6 +55,7 @@ export default function Navbar() {
                     }`}
                 >
                   {link.label}
+                  {link.isNew && <NewBadge />}
                 </a>
               </Link>
             ))}
@@ -111,6 +119,7 @@ export default function Navbar() {
                         }`}
                     >
                       {link.label}
+                      {link.isNew && <NewBadge />}
                     </a>
                   </Link>
                 ))}

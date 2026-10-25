@@ -1,4 +1,5 @@
 import getConfig from 'next/config'
+import { RUN_TIMEOUT, interruptJob } from "lib/comfyui";
 const { publicRuntimeConfig } = getConfig()
 const ENV  = process.env.NODE_ENV;
 let API_HOST = process.env.API_HOST;
@@ -6,18 +7,21 @@ let API_HOST = process.env.API_HOST;
 const POLL_INTERVAL = 2000;
 const MAX_WAIT = 10 * 60 * 1000;
 
-// 任務是否還在 ComfyUI 佇列中 (排隊或執行中)
-async function isQueued(prompt_id) {
+// 任務在 ComfyUI 佇列中的狀態: running / pending / unknown, 不在佇列中回傳 null
+async function getQueueState(prompt_id) {
     const resp = await fetch(`${API_HOST}/queue`);
-    if (!resp.ok) return true; // 無法確認時當作還在跑
+    if (!resp.ok) return "unknown"; // 無法確認時當作還在跑
     const queue = await resp.json();
-    return [...(queue.queue_running || []), ...(queue.queue_pending || [])]
-        .some(item => item[1] === prompt_id);
+    if ((queue.queue_running || []).some(item => item[1] === prompt_id)) return "running";
+    if ((queue.queue_pending || []).some(item => item[1] === prompt_id)) return "pending";
+    return null;
 }
 
 // 等待任務完成: 只要還在佇列中就繼續等, 被取消或前端斷線就停止
+// 開始執行後超過 RUN_TIMEOUT 就中斷 (排隊時間不算)
 async function getHistory(prompt_id, isAborted) {
     const startTime = Date.now();
+    let runningSince = null;
     while (Date.now() - startTime < MAX_WAIT) {
         if (isAborted()) {
             throw new Error("Client disconnected");
@@ -28,12 +32,22 @@ async function getHistory(prompt_id, isAborted) {
             console.log("getHistory1---------", datas);
             return datas;
         }
-        if (!(await isQueued(prompt_id))) {
+        const state = await getQueueState(prompt_id);
+        if (!state) {
             // 再確認一次 history, 避免剛好在兩次查詢之間完成
             const resp2 = await fetch(`${API_HOST}/history/${prompt_id}`);
             const datas2 = await resp2.json();
             if (Object.keys(datas2).length > 0) return datas2;
             throw new Error("Job not found (cancelled?)");
+        }
+        if (state === "running") {
+            runningSince ??= Date.now();
+            if (Date.now() - runningSince > RUN_TIMEOUT.txt2img) {
+                await interruptJob(API_HOST, prompt_id);
+                const error = new Error("Run timeout");
+                error.timeout = true;
+                throw error;
+            }
         }
         await new Promise(resolve => setTimeout(resolve, POLL_INTERVAL));
     }
@@ -106,6 +120,9 @@ export default async function handler(req, res) {
     res.end(JSON.stringify(resjon));
   } catch (error) {
     console.log("error1---------", error);
+    if (error.timeout) {
+      return res.status(504).json({ detail: "圖片生成逾時,請重新嘗試" });
+    }
     return res.status(500).json({ detail: "伺服器維護中,請稍後!" });
   }
 }

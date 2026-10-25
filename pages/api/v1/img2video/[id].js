@@ -1,4 +1,7 @@
-import { getApiHost, findOutputFile } from "lib/comfyui";
+import { getApiHost, findOutputFile, RUN_TIMEOUT, interruptJob } from "lib/comfyui";
+
+// 任務第一次查到在執行中的時間 (排隊時間不算), 用來判斷是否逾時
+const runningSince = new Map();
 
 // 查詢生成狀態: queued / running / done / error
 export default async function handler(req, res) {
@@ -14,6 +17,7 @@ export default async function handler(req, res) {
     const entry = history[id];
 
     if (entry) {
+      runningSince.delete(id);
       if (entry.status?.status_str === "error") {
         console.log("img2video execution err---------", JSON.stringify(entry.status.messages));
         return res.status(200).json({ status: "error", detail: "影片生成失敗,請重新嘗試" });
@@ -37,6 +41,12 @@ export default async function handler(req, res) {
     if (queueRes.ok) {
       const queue = await queueRes.json();
       if (queue.queue_running?.some((item) => item[1] === id)) {
+        if (!runningSince.has(id)) runningSince.set(id, Date.now());
+        if (Date.now() - runningSince.get(id) > RUN_TIMEOUT.img2video) {
+          // 不刪除紀錄: 若中斷沒生效, 下次查詢仍回報逾時
+          await interruptJob(API_HOST, id);
+          return res.status(200).json({ status: "error", detail: "影片生成逾時,請重新嘗試" });
+        }
         return res.status(200).json({ status: "running" });
       }
       const pending = (queue.queue_pending || []).sort((a, b) => a[0] - b[0]);
@@ -44,6 +54,7 @@ export default async function handler(req, res) {
       if (index >= 0) {
         return res.status(200).json({ status: "queued", position: index + 1 });
       }
+      runningSince.delete(id);
       return res.status(404).json({ status: "error", detail: "找不到這個生成任務" });
     }
 
