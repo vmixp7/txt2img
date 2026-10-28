@@ -9,6 +9,7 @@ import {
   LayoutGrid as TemplateIcon,
   XCircle as StartOverIcon,
   Film as FilmIcon,
+  History as HistoryIcon,
 } from "lucide-react";
 import {
   Button,
@@ -20,6 +21,8 @@ import {
   Col,
 } from "reactstrap";
 import Navbar from "components/navbar";
+import HistoryModal from "components/history-modal";
+import { loadHistory, saveHistory, addHistory } from "lib/history";
 import { appMetaDescription } from "../index";
 
 export const pageName = "圖生影片";
@@ -59,10 +62,20 @@ const chunk = (arr, size) =>
     arr.slice(i * size, i * size + size),
   );
 
+// 歷史紀錄每筆 { id, key, prompt, templateId, createdAt }
+const HISTORY_STORAGE_KEY = "img2video_history";
+
+const historyImageUrl = (key) =>
+  `/api/v1/img2video/image?${new URLSearchParams({ key })}`;
+
 export default function Img2Video() {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [imageKey, setImageKey] = useState(null);
+  // 從歷史紀錄套用的 S3 key, 不必重新上傳
+  const [historyKey, setHistoryKey] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [historyOpen, setHistoryOpen] = useState(false);
   // 從文生圖結果帶過來的檔名 (?image=txt2img_xxx.png)
   const [sourceFilename, setSourceFilename] = useState(null);
   const [prompt, setPrompt] = useState("");
@@ -85,6 +98,10 @@ export default function Img2Video() {
   }, [router.isReady, router.query]);
 
   useEffect(() => {
+    setHistory(loadHistory(HISTORY_STORAGE_KEY));
+  }, []);
+
+  useEffect(() => {
     // 換圖後需重新上傳
     setImageKey(null);
     if (imageFile) {
@@ -100,12 +117,48 @@ export default function Img2Video() {
       setImagePreview(`/api/v1/img2video/video?${params}`);
       return;
     }
+    if (historyKey) {
+      setImagePreview(historyImageUrl(historyKey));
+      return;
+    }
     setImagePreview(null);
-  }, [imageFile, sourceFilename]);
+  }, [imageFile, sourceFilename, historyKey]);
 
   const removeImage = () => {
     setImageFile(null);
     setSourceFilename(null);
+    setHistoryKey(null);
+  };
+
+  const recordHistory = (key) => {
+    // 同一張圖 + 同一段 prompt 只留最新一筆
+    const list = addHistory(
+      HISTORY_STORAGE_KEY,
+      { key, prompt, templateId: selectedTemplate },
+      (h) => h.key === key && h.prompt === prompt,
+    );
+    setHistory(list);
+  };
+
+  const applyHistory = (entry) => {
+    setImageFile(null);
+    setSourceFilename(null);
+    setHistoryKey(entry.key);
+    setPrompt(entry.prompt);
+    setSelectedTemplate(entry.templateId);
+    setError(null);
+    setHistoryOpen(false);
+  };
+
+  const deleteHistory = (id) => {
+    const list = history.filter((h) => h.id !== id);
+    saveHistory(HISTORY_STORAGE_KEY, list);
+    setHistory(list);
+  };
+
+  const clearHistory = () => {
+    saveHistory(HISTORY_STORAGE_KEY, []);
+    setHistory([]);
   };
 
   const onDrop = useCallback((acceptedFiles) => {
@@ -115,6 +168,7 @@ export default function Img2Video() {
     }
     setError(null);
     setSourceFilename(null);
+    setHistoryKey(null);
     setImageFile(acceptedFiles[0]);
   }, []);
 
@@ -146,7 +200,7 @@ export default function Img2Video() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!imageFile && !sourceFilename) {
+    if (!imageFile && !sourceFilename && !historyKey) {
       setError("請先上傳一張圖片");
       return;
     }
@@ -159,8 +213,10 @@ export default function Img2Video() {
         const key = imageKey || (await uploadImage(imageFile));
         setImageKey(key);
         source = { key };
-      } else {
+      } else if (sourceFilename) {
         source = { sourceFilename };
+      } else {
+        source = { key: historyKey };
       }
 
       const res = await fetch("/api/v1/img2video", {
@@ -172,6 +228,7 @@ export default function Img2Video() {
       if (res.status > 201) {
         throw new Error(data.detail || "影片生成失敗,請稍後再試");
       }
+      if (data.key) recordHistory(data.key);
       router.push(`/img2video/result?id=${data.promptId}`);
     } catch (error) {
       console.log("img2video err---------", error);
@@ -390,6 +447,18 @@ export default function Img2Video() {
             </Button>
           </ModalFooter>
         </Modal>
+
+        {/* 歷史紀錄 */}
+        <HistoryModal
+          isOpen={historyOpen}
+          toggle={() => setHistoryOpen(!historyOpen)}
+          items={history}
+          imageUrl={(h) => historyImageUrl(h.key)}
+          onApply={applyHistory}
+          onDelete={deleteHistory}
+          onClear={clearHistory}
+          emptyText="還沒有紀錄,生成影片後會自動保存圖片與描述"
+        />
       </main>
 
       <footer
@@ -415,6 +484,13 @@ export default function Img2Video() {
           >
             <TemplateIcon className="icon" />
             模板
+          </button>
+          <button
+            className="lil-button text-white bg-transparent hover:bg-transparent"
+            onClick={() => setHistoryOpen(true)}
+          >
+            <HistoryIcon className="icon" />
+            紀錄
           </button>
           {(imagePreview || prompt) && (
             <button

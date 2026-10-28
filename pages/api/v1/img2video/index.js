@@ -75,7 +75,8 @@ export default async function handler(req, res) {
       return res.status(response.status).json({ detail: "影片生成失敗,請稍後再試" });
     }
 
-    res.status(201).json({ promptId: data.prompt_id });
+    // key 給前端存進歷史紀錄, 之後可直接重用不必重新上傳
+    res.status(201).json({ promptId: data.prompt_id, key });
   } catch (error) {
     console.log("img2video err---------", error);
     res.status(500).json({ detail: "伺服器維護中,請稍後!" });

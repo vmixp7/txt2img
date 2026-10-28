@@ -17,6 +17,8 @@ import {
   ChevronRight as ChevronRightIcon,
 } from "lucide-react";
 import Footer from "components/footer";
+import HistoryModal from "components/history-modal";
+import { loadHistory, saveHistory, addHistory } from "lib/history";
 import prepareImageFileForUpload from "lib/prepare-image-file-for-upload";
 import { getRandomSeed } from "lib/seeds";
 import {
@@ -51,6 +53,9 @@ const promptTemplates = {
   g: "a girl wearing a black and red belly dance costume, with intricate details and a graceful pose. Her hair is pulled back in a bun and she has a serene expression on her face, standing in a serene natural setting. She is looking directly at the camera with a calm and composed expression. The cave's walls are rocky, and there are plants and foliage surrounding the water",
 };
 
+// 歷史紀錄每筆 { id, prompt, lora, shape, createdAt }, prompt 為使用者輸入的原文, 不記錄圖片
+const HISTORY_STORAGE_KEY = "txt2img_history";
+
 export default function Home(props) {
   const [events, setEvents] = useState([]);
   const [predictions, setPredictions] = useState([]);
@@ -74,6 +79,8 @@ export default function Home(props) {
   });
   const [selected, setSelected] = useState("flux_aya");
   const [selectedPrompts, setSelectedPrompts] = useState(new Set());
+  const [history, setHistory] = useState([]);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const loraGirls = [
     "aya",
     "白坂美杏",
@@ -91,6 +98,8 @@ export default function Home(props) {
   const router = useRouter();
   // 生成中的任務: { promptId, controller }
   const jobRef = useRef(null);
+  // 上一次送出: 使用者輸入的原文與實際送出的英文 (送出後輸入框會換成英文)
+  const lastSubmitRef = useRef({ input: "", sent: null });
 
   // 取消生成: 中止前端請求, 並通知 ComfyUI 刪除或中斷任務
   const cancelGeneration = () => {
@@ -144,6 +153,30 @@ export default function Home(props) {
     ReactGA.send("/");
     setDataLayer(dataLayer.push("js", new Date()));
   }, [seed.image]);
+
+  useEffect(() => {
+    setHistory(loadHistory(HISTORY_STORAGE_KEY));
+  }, []);
+
+  // 套用紀錄: 帶回 prompt / 人物 / 形狀
+  const applyHistory = (entry) => {
+    setInitialPrompt(entry.prompt);
+    handlSelected(entry.lora);
+    setSettingData((prevState) => ({ ...prevState, shape: entry.shape }));
+    setError(null);
+    setHistoryOpen(false);
+  };
+
+  const deleteHistory = (id) => {
+    const list = history.filter((h) => h.id !== id);
+    saveHistory(HISTORY_STORAGE_KEY, list);
+    setHistory(list);
+  };
+
+  const clearHistory = () => {
+    saveHistory(HISTORY_STORAGE_KEY, []);
+    setHistory([]);
+  };
 
   const setAllowStatus = () => {
     allow = true;
@@ -271,6 +304,11 @@ export default function Home(props) {
     }
 
     let prompt = e.target.prompt.value;
+    // 使用者輸入的原文, 存進歷史紀錄; 輸入框還是上次的英文時, 換回當時的原文
+    const inputPrompt =
+      prompt === lastSubmitRef.current.sent
+        ? lastSubmitRef.current.input
+        : prompt;
     const lastImage = events.findLast((ev) => ev.image)?.image;
 
     console.log("input prompt------", prompt);
@@ -523,6 +561,22 @@ export default function Home(props) {
           { image: prediction.url },
         ]),
       );
+      // 同一段 prompt + 人物 + 形狀只留最新一筆
+      setHistory(
+        addHistory(
+          HISTORY_STORAGE_KEY,
+          {
+            prompt: inputPrompt,
+            lora: settingData.lora,
+            shape: settingData.shape,
+          },
+          (h) =>
+            h.prompt === inputPrompt &&
+            h.lora === settingData.lora &&
+            h.shape === settingData.shape,
+        ),
+      );
+      lastSubmitRef.current = { input: inputPrompt, sent: prompt };
       // }
     } catch (error) {
       // 使用者取消, 狀態已在 cancelGeneration 處理
@@ -1101,6 +1155,17 @@ export default function Home(props) {
           handleImageDropped={handleImageDropped}
           settingPrompt={settingPrompt}
           settingPromptOpen={settingPromptOpen}
+          openHistory={() => setHistoryOpen(true)}
+        />
+
+        <HistoryModal
+          isOpen={historyOpen}
+          toggle={() => setHistoryOpen(!historyOpen)}
+          items={history}
+          onApply={applyHistory}
+          onDelete={deleteHistory}
+          onClear={clearHistory}
+          emptyText="還沒有紀錄,生成圖片後會自動保存描述"
         />
       </main>
     </div>
