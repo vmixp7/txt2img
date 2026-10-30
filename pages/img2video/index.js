@@ -98,8 +98,16 @@ export default function Img2Video() {
   }, [router.isReady, router.query]);
 
   useEffect(() => {
-    setHistory(loadHistory(HISTORY_STORAGE_KEY));
-  }, []);
+    if (!router.isReady) return;
+    const list = loadHistory(HISTORY_STORAGE_KEY);
+    setHistory(list);
+    // 從結果頁「再做一部」回來 (?again=1), 帶入上一筆紀錄的圖片與描述
+    if (router.query.again && list[0]) {
+      setHistoryKey(list[0].key);
+      setPrompt(list[0].prompt);
+      setSelectedTemplate(list[0].templateId);
+    }
+  }, [router.isReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     // 換圖後需重新上傳

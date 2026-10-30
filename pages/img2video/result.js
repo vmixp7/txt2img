@@ -92,7 +92,7 @@ export default function Img2VideoResult() {
       }
       cancelledRef.current = true;
       setStatus("cancelled");
-      router.push("/img2video");
+      router.push("/img2video?again=1");
     } catch (e) {
       console.log("cancel err---------", e);
       setCancelError(e.message);
@@ -200,7 +200,7 @@ export default function Img2VideoResult() {
 
         {!isWaiting && (
           <div className="flex mt-4">
-            <Link href="/img2video">
+            <Link href="/img2video?again=1">
               <a className="bg-blue-800 hover:bg-blue-900 w-full text-white rounded-md text-2xl inline-flex items-center justify-center p-3 hover:text-white no-underline">
                 <RetryIcon className="h-6 w-6 mr-2" />
                 {status === "error" ? "重新嘗試" : "再做一部"}
