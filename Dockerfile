@@ -1,5 +1,5 @@
 # 多階段構建 - 依賴階段
-FROM node:16-alpine AS deps
+FROM node:22-alpine AS deps
 ENV NODE_OPTIONS="--max-old-space-size=256"
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
@@ -9,7 +9,7 @@ COPY package.json package-lock.json* ./
 RUN npm ci
 
 # 構建階段
-FROM node:16-alpine AS builder
+FROM node:22-alpine AS builder
 ENV NODE_OPTIONS="--max-old-space-size=256"
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
@@ -19,7 +19,7 @@ COPY . .
 RUN npm run build
 
 # 生產運行階段
-FROM node:16-alpine AS runner
+FROM node:22-alpine AS runner
 ENV NODE_OPTIONS="--max-old-space-size=256"
 WORKDIR /app
 

@@ -4,13 +4,21 @@ import Messages from "components/messages";
 import PromptForm from "components/prompt-form";
 import Navbar from "components/navbar";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { useEffect, useState, useRef } from "react";
 import { v4 as uuidv4 } from "uuid";
 import "bootstrap/dist/css/bootstrap.css";
 import ReactGA from "react-ga4";
 import Script from "next/script";
-import { LogOut as LogoutIcon } from "lucide-react";
+import Link from "next/link";
+import {
+  LogOut as LogoutIcon,
+  Video as VideoIcon,
+  ChevronRight as ChevronRightIcon,
+} from "lucide-react";
 import Footer from "components/footer";
+import HistoryModal from "components/history-modal";
+import { loadHistory, saveHistory, addHistory } from "lib/history";
 import prepareImageFileForUpload from "lib/prepare-image-file-for-upload";
 import { getRandomSeed } from "lib/seeds";
 import {
@@ -45,6 +53,9 @@ const promptTemplates = {
   g: "a girl wearing a black and red belly dance costume, with intricate details and a graceful pose. Her hair is pulled back in a bun and she has a serene expression on her face, standing in a serene natural setting. She is looking directly at the camera with a calm and composed expression. The cave's walls are rocky, and there are plants and foliage surrounding the water",
 };
 
+// 歷史紀錄每筆 { id, prompt, lora, shape, createdAt }, prompt 為使用者輸入的原文, 不記錄圖片
+const HISTORY_STORAGE_KEY = "txt2img_history";
+
 export default function Home(props) {
   const [events, setEvents] = useState([]);
   const [predictions, setPredictions] = useState([]);
@@ -68,6 +79,8 @@ export default function Home(props) {
   });
   const [selected, setSelected] = useState("flux_aya");
   const [selectedPrompts, setSelectedPrompts] = useState(new Set());
+  const [history, setHistory] = useState([]);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const loraGirls = [
     "aya",
     "白坂美杏",
@@ -82,6 +95,54 @@ export default function Home(props) {
   ];
   const promptInputRef = useRef(null);
   const promptFormRef = useRef(null);
+  const router = useRouter();
+  // 生成中的任務: { promptId, controller }
+  const jobRef = useRef(null);
+  // 上一次送出: 使用者輸入的原文與實際送出的英文 (送出後輸入框會換成英文)
+  const lastSubmitRef = useRef({ input: "", sent: null });
+
+  // 取消生成: 中止前端請求, 並通知 ComfyUI 刪除或中斷任務
+  const cancelGeneration = () => {
+    const job = jobRef.current;
+    if (!job) return;
+    jobRef.current = null;
+    job.controller.abort();
+    fetch("/api/v1/cancel", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: job.promptId }),
+      keepalive: true,
+    }).catch((e) => console.log("cancel err---------", e));
+    setIsProcessing(false);
+  };
+
+  // 生成中離開頁面就取消 (站內換頁, 關閉分頁, 重新整理)
+  useEffect(() => {
+    if (!isProcessing) return;
+
+    const cancelOnLeave = () => {
+      const job = jobRef.current;
+      if (!job) return;
+      jobRef.current = null;
+      const body = new Blob([JSON.stringify({ id: job.promptId })], {
+        type: "application/json",
+      });
+      navigator.sendBeacon("/api/v1/cancel", body);
+    };
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("pagehide", cancelOnLeave);
+    router.events.on("routeChangeStart", cancelOnLeave);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("pagehide", cancelOnLeave);
+      router.events.off("routeChangeStart", cancelOnLeave);
+    };
+  }, [isProcessing, router.events]);
 
   // set the initial image from a random seed
   useEffect(() => {
@@ -92,6 +153,30 @@ export default function Home(props) {
     ReactGA.send("/");
     setDataLayer(dataLayer.push("js", new Date()));
   }, [seed.image]);
+
+  useEffect(() => {
+    setHistory(loadHistory(HISTORY_STORAGE_KEY));
+  }, []);
+
+  // 套用紀錄: 帶回 prompt / 人物 / 形狀
+  const applyHistory = (entry) => {
+    setInitialPrompt(entry.prompt);
+    handlSelected(entry.lora);
+    setSettingData((prevState) => ({ ...prevState, shape: entry.shape }));
+    setError(null);
+    setHistoryOpen(false);
+  };
+
+  const deleteHistory = (id) => {
+    const list = history.filter((h) => h.id !== id);
+    saveHistory(HISTORY_STORAGE_KEY, list);
+    setHistory(list);
+  };
+
+  const clearHistory = () => {
+    saveHistory(HISTORY_STORAGE_KEY, []);
+    setHistory([]);
+  };
 
   const setAllowStatus = () => {
     allow = true;
@@ -197,17 +282,6 @@ export default function Home(props) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 加載monetag廣告腳本
-    if (typeof window !== "undefined") {
-      if (!document.querySelector('script[data-zone="10395350"]')) {
-        const script = document.createElement("script");
-        script.src = "https://al5sm.com/tag.min.js";
-        script.dataset.zone = "10395350";
-        script.async = true;
-        document.body.appendChild(script);
-      }
-    }
-
     // if (!allow) {
     //   setModalOpen(!modalOpen);
     //   return;
@@ -230,6 +304,11 @@ export default function Home(props) {
     }
 
     let prompt = e.target.prompt.value;
+    // 使用者輸入的原文, 存進歷史紀錄; 輸入框還是上次的英文時, 換回當時的原文
+    const inputPrompt =
+      prompt === lastSubmitRef.current.sent
+        ? lastSubmitRef.current.input
+        : prompt;
     const lastImage = events.findLast((ev) => ev.image)?.image;
 
     console.log("input prompt------", prompt);
@@ -237,7 +316,9 @@ export default function Home(props) {
     setError(null);
     setIsProcessing(true);
 
-    const adStartTime = Date.now();
+    // ComfyUI 接受自訂 prompt_id (UUID), 取消時用
+    const job = { promptId: uuidv4(), controller: new AbortController() };
+    jobRef.current = job;
 
     try {
       const promptDefault =
@@ -272,6 +353,7 @@ export default function Home(props) {
             const gtres = await fetch(gturl, {
               method: "GET",
               gtheaders,
+              signal: job.controller.signal,
             });
             const transObj = await gtres.json();
             console.log("translate res--", transObj);
@@ -457,33 +539,17 @@ export default function Home(props) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ ...body, prompt_id: job.promptId }),
+        signal: job.controller.signal,
       });
       const prediction = await response.json();
       console.log("prediction=====", prediction);
 
       if (response.status > 201) {
         console.log("err1---------------", response);
-
-        // 確保廣告至少顯示 5 秒
-        const adElapsedTime = Date.now() - adStartTime;
-        const remainingTime = Math.max(0, 5000 - adElapsedTime);
-
-        if (remainingTime > 0) {
-          await sleep(remainingTime);
-        }
-
         setIsProcessing(false);
         setError(prediction.detail);
         return;
-      }
-
-      // 確保廣告至少顯示 5 秒
-      const adElapsedTime = Date.now() - adStartTime;
-      const remainingTime = Math.max(0, 5000 - adElapsedTime);
-
-      if (remainingTime > 0) {
-        await sleep(remainingTime);
       }
 
       // if (prediction.images.length > 0) {
@@ -495,21 +561,31 @@ export default function Home(props) {
           { image: prediction.url },
         ]),
       );
+      // 同一段 prompt + 人物 + 形狀只留最新一筆
+      setHistory(
+        addHistory(
+          HISTORY_STORAGE_KEY,
+          {
+            prompt: inputPrompt,
+            lora: settingData.lora,
+            shape: settingData.shape,
+          },
+          (h) =>
+            h.prompt === inputPrompt &&
+            h.lora === settingData.lora &&
+            h.shape === settingData.shape,
+        ),
+      );
+      lastSubmitRef.current = { input: inputPrompt, sent: prompt };
       // }
     } catch (error) {
+      // 使用者取消, 狀態已在 cancelGeneration 處理
+      if (error.name === "AbortError") return;
       console.log("node server err---------", error);
-
-      // 確保廣告至少顯示 5 秒，即使發生錯誤
-      const adElapsedTime = Date.now() - adStartTime;
-      const remainingTime = Math.max(0, 5000 - adElapsedTime);
-
-      if (remainingTime > 0) {
-        await sleep(remainingTime);
-      }
-
       setIsProcessing(false);
       setError(error.message);
     }
+    if (jobRef.current === job) jobRef.current = null;
 
     // while (
     //   prediction.status !== "succeeded" &&
@@ -576,6 +652,20 @@ export default function Home(props) {
       <Navbar />
 
       <main className="max-w-[700px] mx-auto mt-8">
+        {/* 新功能: 圖生影片 */}
+        <Link href="/img2video">
+          <a className="flex items-center gap-3 mx-4 px-4 py-3 rounded-lg bg-[#eaf6ff] border border-blue-200 text-blue-900 no-underline hover:bg-blue-100 transition-colors">
+            <VideoIcon className="h-5 w-5 shrink-0" />
+            <span className="flex-1 text-sm sm:text-base">
+              <span className="mr-2 px-1.5 py-0.5 rounded-full bg-orange-500 text-white text-[10px] font-bold align-middle">
+                NEW
+              </span>
+              新功能「圖生影片」上線! 上傳一張圖片, 讓它動起來
+            </span>
+            <ChevronRightIcon className="h-5 w-5 shrink-0" />
+          </a>
+        </Link>
+
         <hgroup className="pt-8">
           <p className="text-center text-lg opacity-60 m-6">{appSubtitle}</p>
         </hgroup>
@@ -617,6 +707,11 @@ export default function Home(props) {
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
+          }}
+          onCancel={cancelGeneration}
+          makeVideo={(img) => {
+            const filename = new URL(img).searchParams.get("filename");
+            router.push(`/img2video?image=${encodeURIComponent(filename)}`);
           }}
         />
 
@@ -1010,46 +1105,46 @@ export default function Home(props) {
               ✨ 自訂咒語
             </button>
             <button
-              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-800 font-semibold hover:text-white focus:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("a") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
-              onClick={() => handlePrompt("a")}
-            >
-              一名女孩身穿黑色短裙，上衣露出乳溝，撐著傘站在街上
-            </button>
-            <button
-              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-800 font-semibold hover:text-white focus:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("b") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
-              onClick={() => handlePrompt("b")}
-            >
-              一位新娘身穿露胸婚紗。照片背景是教堂。她手捧一束紅色康乃馨。
-            </button>
-            <button
-              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-800 font-semibold hover:text-white focus:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("c") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none hover:bg-blue-800 font-semibold hover:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("c") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
               onClick={() => handlePrompt("c")}
             >
               1位短髮女孩，在沙灘上穿著比基尼，擁有完美身材。
             </button>
             <button
-              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-800 font-semibold hover:text-white focus:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("d") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
-              onClick={() => handlePrompt("d")}
-            >
-              一個女孩倚靠在一隻白色黑紋老虎身上，背景是森林裡的瀑布。
-            </button>
-            <button
-              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-800 font-semibold hover:text-white focus:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("e") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none hover:bg-blue-800 font-semibold hover:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("e") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
               onClick={() => handlePrompt("e")}
             >
               一個賽車女郎戴著太陽眼鏡，穿著連身低胸皮衣。
             </button>
             <button
-              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-800 font-semibold hover:text-white focus:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("f") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none hover:bg-blue-800 font-semibold hover:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("a") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
+              onClick={() => handlePrompt("a")}
+            >
+              一名女孩身穿黑色短裙，上衣露出乳溝，撐著傘站在街上
+            </button>
+            <button
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none hover:bg-blue-800 font-semibold hover:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("b") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
+              onClick={() => handlePrompt("b")}
+            >
+              一位新娘身穿露胸婚紗。照片背景是教堂。她手捧一束紅色康乃馨。
+            </button>
+            <button
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none hover:bg-blue-800 font-semibold hover:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("f") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
               onClick={() => handlePrompt("f")}
             >
               一位身穿魔法女裝的女士，身穿黑色長袖外套和黑色帽子，在霍格華茲城堡中，手持魔杖。
             </button>
             <button
-              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none bg-transparent hover:bg-blue-800 font-semibold hover:text-white focus:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("g") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none hover:bg-blue-800 font-semibold hover:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("g") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
               onClick={() => handlePrompt("g")}
             >
               一位身穿黑紅肚皮舞服裝的女孩，背景是洞穴的岩壁由岩石構成，水面周圍環繞著植物和樹葉。
+            </button>
+            <button
+              className={`text-left mb-1 w-full rounded-l-md rounded-r-md text-lg inline-block p-3 flex-none hover:bg-blue-800 font-semibold hover:text-white py-2 px-4 border-2 hover:border-transparent rounded ${selectedPrompts.has("d") ? "border-blue-600 text-blue-600" : "border-gray-300 text-gray-400"}`}
+              onClick={() => handlePrompt("d")}
+            >
+              一個女孩倚靠在一隻白色黑紋老虎身上，背景是森林裡的瀑布。
             </button>
           </ModalBody>
         </Modal>
@@ -1060,6 +1155,17 @@ export default function Home(props) {
           handleImageDropped={handleImageDropped}
           settingPrompt={settingPrompt}
           settingPromptOpen={settingPromptOpen}
+          openHistory={() => setHistoryOpen(true)}
+        />
+
+        <HistoryModal
+          isOpen={historyOpen}
+          toggle={() => setHistoryOpen(!historyOpen)}
+          items={history}
+          onApply={applyHistory}
+          onDelete={deleteHistory}
+          onClear={clearHistory}
+          emptyText="還沒有紀錄,生成圖片後會自動保存描述"
         />
       </main>
     </div>

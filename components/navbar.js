@@ -1,23 +1,87 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useState } from "react";
-import { Menu as MenuIcon, X as CloseIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  Menu as MenuIcon,
+  X as CloseIcon,
+  Download as DownloadIcon,
+  Share as ShareIcon,
+  PlusSquare as PlusSquareIcon,
+} from "lucide-react";
 
 export default function Navbar() {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  // PWA 安裝：Android/Chrome 用 beforeinstallprompt，iOS Safari 只能手動「加入主畫面」
+  const [installPrompt, setInstallPrompt] = useState(null);
+  const [isIOS, setIsIOS] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
+  const [showIOSGuide, setShowIOSGuide] = useState(false);
+
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    }
+
+    const ua = window.navigator.userAgent;
+    setIsIOS(
+      /iphone|ipad|ipod/i.test(ua) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+    );
+    setIsStandalone(
+      window.matchMedia("(display-mode: standalone)").matches ||
+      window.navigator.standalone === true
+    );
+
+    const handleBeforeInstall = (e) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+    const handleInstalled = () => {
+      setInstallPrompt(null);
+      setIsStandalone(true);
+    };
+    window.addEventListener("beforeinstallprompt", handleBeforeInstall);
+    window.addEventListener("appinstalled", handleInstalled);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
+      window.removeEventListener("appinstalled", handleInstalled);
+    };
+  }, []);
+
+  const canInstall = !isStandalone && (installPrompt || isIOS);
+
+  const handleInstallClick = async () => {
+    setMobileMenuOpen(false);
+    if (installPrompt) {
+      installPrompt.prompt();
+      await installPrompt.userChoice;
+      setInstallPrompt(null);
+    } else if (isIOS) {
+      setShowIOSGuide(true);
+    }
+  };
 
   const isActive = (path) => {
-    return router.pathname === path;
+    return path === "/"
+      ? router.pathname === path
+      : router.pathname.startsWith(path);
   };
 
   const navLinks = [
-    { href: "/", label: "AI生成" },
+    { href: "/", label: "文生圖" },
+    { href: "/img2video", label: "圖生影片", isNew: true },
     { href: "/about", label: "關於我們" },
-    { href: "/blog", label: "Blog" },
     { href: "/terms", label: "使用條款" },
     { href: "/privacy", label: "隱私政策" },
   ];
+
+  // 新功能標籤
+  const NewBadge = () => (
+    <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-orange-500 text-white text-[10px] font-bold leading-none align-middle">
+      NEW
+    </span>
+  );
 
   const handleLinkClick = () => {
     setMobileMenuOpen(false);
@@ -30,6 +94,11 @@ export default function Navbar() {
           <div className="flex">
             <Link href="/">
               <a className="flex items-center text-xl font-bold text-gray-900 hover:text-blue-800">
+                <img
+                  src="/icons/icon-192.png"
+                  alt=""
+                  className="h-8 w-8 rounded-lg mr-2"
+                />
                 AI美女生成
               </a>
             </Link>
@@ -46,13 +115,32 @@ export default function Navbar() {
                     }`}
                 >
                   {link.label}
+                  {link.isNew && <NewBadge />}
                 </a>
               </Link>
             ))}
+            {canInstall && (
+              <button
+                onClick={handleInstallClick}
+                className="inline-flex items-center px-3 py-2 rounded-md text-sm font-medium text-blue-800 border border-blue-800 hover:bg-blue-800 hover:text-white transition-colors"
+              >
+                <DownloadIcon className="h-4 w-4 mr-1" />
+                安裝 App
+              </button>
+            )}
           </div>
 
           {/* 移動端漢堡選單按鈕 */}
-          <div className="flex items-center sm:hidden">
+          <div className="flex items-center gap-2 sm:hidden">
+            {canInstall && (
+              <button
+                onClick={handleInstallClick}
+                className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-blue-800 text-white hover:bg-blue-900"
+              >
+                <DownloadIcon className="h-4 w-4 mr-1" />
+                安裝
+              </button>
+            )}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-white hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-800"
@@ -109,14 +197,73 @@ export default function Navbar() {
                         }`}
                     >
                       {link.label}
+                      {link.isNew && <NewBadge />}
                     </a>
                   </Link>
                 ))}
+                {canInstall && (
+                  <button
+                    onClick={handleInstallClick}
+                    className="flex items-center w-full px-4 py-3 rounded-md text-base font-medium text-blue-800 hover:bg-blue-800 hover:text-white transition-colors"
+                  >
+                    <DownloadIcon className="h-5 w-5 mr-2" />
+                    安裝到手機主畫面
+                  </button>
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* iOS 加入主畫面教學 */}
+      {showIOSGuide && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end sm:items-center justify-center"
+          onClick={() => setShowIOSGuide(false)}
+        >
+          <div
+            className="bg-white w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center mb-4">
+              <img
+                src="/icons/icon-192.png"
+                alt=""
+                className="h-12 w-12 rounded-xl mr-3"
+              />
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-gray-900">安裝 AI美女生成</h3>
+                <p className="text-sm text-gray-500">加入主畫面，像 App 一樣開啟</p>
+              </div>
+              <button
+                onClick={() => setShowIOSGuide(false)}
+                className="p-2 rounded-md text-gray-500 hover:bg-gray-100"
+              >
+                <CloseIcon className="h-5 w-5" />
+              </button>
+            </div>
+            <ol className="space-y-3 text-gray-700">
+              <li className="flex items-center">
+                <span className="mr-2 font-bold">1.</span>
+                點選 Safari 下方的
+                <ShareIcon className="h-5 w-5 mx-1 text-blue-600" />
+                「分享」按鈕
+              </li>
+              <li className="flex items-center">
+                <span className="mr-2 font-bold">2.</span>
+                選擇
+                <PlusSquareIcon className="h-5 w-5 mx-1 text-gray-700" />
+                「加入主畫面」
+              </li>
+              <li className="flex items-center">
+                <span className="mr-2 font-bold">3.</span>
+                點右上角「新增」即完成
+              </li>
+            </ol>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

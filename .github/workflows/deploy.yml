@@ -32,11 +32,11 @@ jobs:
 
     - name: Upload project files to EC2
       run: |
-        rsync -avz --delete --exclude='.git' -e "ssh -o StrictHostKeyChecking=no -i ${{ env.SSH_KEY_PATH }}" \
+        rsync -avz --delete --exclude='.git' --exclude='.env.local' -e "ssh -o StrictHostKeyChecking=no -i ${{ env.SSH_KEY_PATH }}" \
         ./ ${{ env.EC2_USER }}@${{ env.EC2_HOST }}:${{ env.EC2_DIR }}/
 
     - name: SSH and run deploy script
       run: |
         ssh -o StrictHostKeyChecking=no -i ${{ env.SSH_KEY_PATH }} \
         ${{ env.EC2_USER }}@${{ env.EC2_HOST }} \
-        "cd ${{ env.EC2_DIR }} && chmod +x ${{ env.DEPLOY_SH }} && ./${{ env.DEPLOY_SH }}"
+        "cd ${{ env.EC2_DIR }} && ./${{ env.DEPLOY_SH }}"

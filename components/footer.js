@@ -6,10 +6,11 @@ import {
   XCircle as StartOverIcon,
   Settings as SettingsIcon,
   MinusSquare as IconSquareMenu,
+  History as HistoryIcon,
 } from "lucide-react";
 import Link from "next/link";
 
-export default function Footer({ events, startOver, handleImageDropped, settingPrompt, settingPromptOpen }) {
+export default function Footer({ events, startOver, handleImageDropped, settingPrompt, settingPromptOpen, openHistory }) {
 
   return (
     <footer className="w-full"
@@ -37,6 +38,11 @@ export default function Footer({ events, startOver, handleImageDropped, settingP
         <button className="lil-button text-white bg-transparent hover:bg-transparent" onClick={settingPromptOpen}>
           <IconSquareMenu className="icon" />
           Prompt
+        </button>
+
+        <button className="lil-button text-white bg-transparent hover:bg-transparent" onClick={openHistory}>
+          <HistoryIcon className="icon" />
+          紀錄
         </button>
 
         {events.length > 1 && (
