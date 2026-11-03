@@ -131,11 +131,7 @@ export default function Img2VideoResult() {
 
       <Navbar />
 
-      <main className="max-w-[700px] mx-auto mt-8 px-4">
-        <hgroup className="pt-8">
-          <p className="text-center text-lg opacity-60 m-6">生成結果</p>
-        </hgroup>
-
+      <main className="max-w-[700px] mx-auto mt-4 px-4">
         {isWaiting && (
           <div className="flex flex-col items-center justify-center min-h-[20rem] rounded-lg bg-gray-100 text-center px-6 py-10">
             <FilmIcon className="h-12 w-12 text-gray-400 mb-4" />

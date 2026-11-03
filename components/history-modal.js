@@ -1,7 +1,9 @@
-import { Trash2 as TrashIcon } from "lucide-react";
+import { useState } from "react";
+import { Trash2 as TrashIcon, Heart as HeartIcon } from "lucide-react";
 import { Button, Modal, ModalBody, ModalFooter } from "reactstrap";
 
 // 歷史紀錄視窗, 每筆顯示縮圖 (有 imageUrl 時) / 時間 / prompt, 點擊套用
+// 有 onToggleFavorite 時顯示愛心按鈕與「全部 / 最愛」切換
 export default function HistoryModal({
   isOpen,
   toggle,
@@ -10,8 +12,13 @@ export default function HistoryModal({
   onApply,
   onDelete,
   onClear,
+  onToggleFavorite,
   emptyText = "還沒有紀錄",
 }) {
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
+  const shown =
+    onToggleFavorite && favoritesOnly ? items.filter((h) => h.favorite) : items;
+
   const clearAll = () => {
     if (window.confirm("確定要清除所有紀錄?")) onClear();
   };
@@ -31,11 +38,34 @@ export default function HistoryModal({
         </button>
       </div>
       <ModalBody>
-        {items.length === 0 ? (
-          <p className="text-center text-gray-500 my-8">{emptyText}</p>
+        {onToggleFavorite && (
+          <div className="flex gap-2 mb-3">
+            {[
+              [false, "全部"],
+              [true, "最愛"],
+            ].map(([value, label]) => (
+              <button
+                key={label}
+                type="button"
+                onClick={() => setFavoritesOnly(value)}
+                className={`px-3 py-1 rounded-full text-sm border-0 ${
+                  favoritesOnly === value
+                    ? "bg-blue-800 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+        {shown.length === 0 ? (
+          <p className="text-center text-gray-500 my-8">
+            {favoritesOnly ? "還沒有最愛,點擊紀錄右側的愛心加入" : emptyText}
+          </p>
         ) : (
           <ul className="list-none p-0 m-0">
-            {items.map((h) => (
+            {shown.map((h) => (
               <li
                 key={h.id}
                 className="flex items-start gap-3 p-2 mb-2 rounded-md bg-gray-50 hover:bg-gray-100 cursor-pointer"
@@ -65,17 +95,40 @@ export default function HistoryModal({
                     {h.prompt || "(未輸入描述)"}
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(h.id);
-                  }}
-                  className="shrink-0 p-1 text-gray-400 hover:text-red-500 bg-transparent border-0"
-                  aria-label="刪除紀錄"
-                >
-                  <TrashIcon className="h-5 w-5" />
-                </button>
+                <div className="shrink-0 flex flex-col gap-1">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(h.id);
+                    }}
+                    className="p-1 text-gray-400 hover:text-red-500 bg-transparent border-0"
+                    aria-label="刪除紀錄"
+                  >
+                    <TrashIcon className="h-5 w-5" />
+                  </button>
+                  {onToggleFavorite && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleFavorite(h.id);
+                      }}
+                      className={`p-1 bg-transparent border-0 ${
+                        h.favorite
+                          ? "text-pink-500"
+                          : "text-gray-400 hover:text-pink-500"
+                      }`}
+                      aria-label={h.favorite ? "移出最愛" : "加入最愛"}
+                      aria-pressed={!!h.favorite}
+                    >
+                      <HeartIcon
+                        className="h-5 w-5"
+                        fill={h.favorite ? "currentColor" : "none"}
+                      />
+                    </button>
+                  )}
+                </div>
               </li>
             ))}
           </ul>

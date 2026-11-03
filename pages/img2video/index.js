@@ -35,31 +35,43 @@ const videoTemplates = [
     label: "模板一",
     image: "/images/prompt_01.png",
     prompt:
-      "女孩走上現代化的辦公樓梯。鏡頭從她正後方由下往上低角度拍攝，保持屁股在畫面的中間，隨著她一步步攀爬。最後，她轉過頭，回頭看向鏡頭，眼神中流露出一種微妙而誘人的魅力。影片採用電影級的燈光，逼真的肌膚和布料紋理，細節豐富，營造出優雅而性感的氛圍。",
+      "一個帥氣的男生與女生熱情擁抱法式舌吻，女生雙手環抱男生的脖子，男生雙手環抱女生的腰部，兩人緊緊貼在一起，嘴唇交纏，舌頭互相探索對方的口腔，眼神充滿愛意和渴望。鏡頭從側面拍攝,緩慢特寫舌頭交纏的畫面，捕捉兩人深情的眼神交流。影片採用電影級的燈光和色彩，細膩呈現皮膚質感和服裝紋理，營造出浪漫而性感的氛圍。",
   },
   {
     id: "t2",
     label: "模板二",
     image: "/images/prompt_02.png",
     prompt:
-      "都市街道，有行人與車輛。女孩對鏡頭微笑後轉身，以正常偏慢到中等速度持續走路，全程不停。鏡頭極低角度接近地面從後方跟隨，清楚拍攝她優雅的步伐。精確在第3秒時鏡頭快速推進，鎖定她圓潤豐滿的臀部做特寫跟拍，並全程維持臀部特寫直到結束。自然光線、電影感運鏡、高細節、真實質感、柔和膚色、寫實風格。",
+      "女生雙手五指張開抓住胸部下緣，手掌緊貼胸部時用力抓胸部，手指在胸部按壓出凹陷，由下往上旋轉搓揉胸部，，扭腰擺臀，嘴巴微微張開，舌尖由左向右舔上嘴唇，性感的眼神",
   },
   {
     id: "t3",
     label: "模板三",
     image: "/images/prompt_03.png",
     prompt:
-      "整段影片從第一幀開始就維持極低角度仰拍手機視角，鏡頭貼地並沿著地面滑動往上拍。現代便利商店，年輕女生走兩步到飲料冷藏櫃。走路兩步過程中，鏡頭貼地從下方緩慢跟進。當她彎下腰拿最下層飲料時，鏡頭鎖定在她屁股正下方，從正下方往上拍攝屁股。柔和螢光燈、真實皮膚、自然動作、強烈手持晃動、寫實風格。",
+      "都市街道，有行人與車輛。女孩對鏡頭微笑後轉身，以正常偏慢到中等速度持續走路，全程不停。鏡頭極低角度接近地面從後方跟隨，清楚拍攝她優雅的步伐。精確在第3秒時鏡頭快速推進，鎖定她圓潤豐滿的臀部做特寫跟拍，並全程維持臀部特寫直到結束。自然光線、電影感運鏡、高細節、真實質感、柔和膚色、寫實風格。",
   },
   {
     id: "t4",
     label: "模板四",
     image: "/images/prompt_04.png",
     prompt:
+      "女孩走上現代化的辦公樓梯。鏡頭從她正後方由下往上低角度拍攝，保持屁股在畫面的中間，隨著她一步步攀爬。最後，她轉過頭，回頭看向鏡頭，眼神中流露出一種微妙而誘人的魅力。影片採用電影級的燈光，逼真的肌膚和布料紋理，細節豐富，營造出優雅而性感的氛圍。",
+  },
+  {
+    id: "t5",
+    label: "模板五",
+    image: "/images/prompt_05.png",
+    prompt:
       "一位女生走1步後自然站在往上的手扶梯上。鏡頭從她正後方貼地由下往上低角度拍攝，保持屁股在畫面的上方，女生雙腿稍微張開，鏡頭緩慢特寫到裙底隱約露出一點點白色超薄細邊丁字褲。柔和自然光線、真實皮膚與布料質感、連續流暢運鏡、高細節、寫實風格。",
   },
-  { id: "t5", label: "模板五", image: null, prompt: "" },
-  { id: "t6", label: "模板六", image: null, prompt: "" },
+  {
+    id: "t6",
+    label: "模板六",
+    image: "/images/prompt_06.png",
+    prompt:
+      "整段影片從第一幀開始就維持極低角度仰拍手機視角，鏡頭貼地並沿著地面滑動往上拍。現代便利商店，年輕女生走兩步到飲料冷藏櫃。走路兩步過程中，鏡頭貼地從下方緩慢跟進。當她彎下腰拿最下層飲料時，鏡頭鎖定在她屁股正下方，從正下方往上拍攝屁股。柔和螢光燈、真實皮膚、自然動作、強烈手持晃動、寫實風格。",
+  },
 ];
 
 // 每列 3 個, 與文生圖的人物選單相同版型
@@ -68,7 +80,7 @@ const chunk = (arr, size) =>
     arr.slice(i * size, i * size + size),
   );
 
-// 歷史紀錄每筆 { id, key, prompt, templateId, createdAt }
+// 歷史紀錄每筆 { id, key, prompt, templateId, createdAt, favorite }
 const HISTORY_STORAGE_KEY = "img2video_history";
 
 const historyImageUrl = (key) =>
@@ -170,9 +182,19 @@ export default function Img2Video() {
     setHistory(list);
   };
 
+  const toggleFavorite = (id) => {
+    const list = history.map((h) =>
+      h.id === id ? { ...h, favorite: !h.favorite } : h,
+    );
+    saveHistory(HISTORY_STORAGE_KEY, list);
+    setHistory(list);
+  };
+
+  // 清除全部時保留最愛
   const clearHistory = () => {
-    saveHistory(HISTORY_STORAGE_KEY, []);
-    setHistory([]);
+    const list = history.filter((h) => h.favorite);
+    saveHistory(HISTORY_STORAGE_KEY, list);
+    setHistory(list);
   };
 
   const onDrop = useCallback((acceptedFiles) => {
@@ -471,6 +493,7 @@ export default function Img2Video() {
           onApply={applyHistory}
           onDelete={deleteHistory}
           onClear={clearHistory}
+          onToggleFavorite={toggleFavorite}
           emptyText="還沒有紀錄,生成影片後會自動保存圖片與描述"
         />
       </main>
