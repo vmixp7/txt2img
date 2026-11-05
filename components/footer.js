@@ -5,7 +5,7 @@ import {
   Info as InfoIcon,
   XCircle as StartOverIcon,
   Settings as SettingsIcon,
-  MinusSquare as IconSquareMenu,
+  LayoutGrid as TemplateIcon,
   History as HistoryIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -36,8 +36,8 @@ export default function Footer({ events, startOver, handleImageDropped, settingP
         </button>
 
         <button className="lil-button text-white bg-transparent hover:bg-transparent" onClick={settingPromptOpen}>
-          <IconSquareMenu className="icon" />
-          Prompt
+          <TemplateIcon className="icon" />
+          模板
         </button>
 
         <button className="lil-button text-white bg-transparent hover:bg-transparent" onClick={openHistory}>

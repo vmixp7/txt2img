@@ -1,7 +1,6 @@
 import Head from "next/head";
 import Link from "next/link";
 import { ArrowLeft as ArrowLeftIcon } from "lucide-react";
-import { Mail as MailIcon } from "lucide-react";
 import Navbar from "components/navbar";
 
 import { appName } from "./index";
@@ -35,13 +34,6 @@ export default function Terms() {
         <li>爭議解決本使用條款受中華人民共和國法律管轄。任何因使用本網站而引起的爭議應當通過友好協商解決。如果協商不成，任何一方均有權向有管轄權的法院提起訴訟。</li>
         </ol>
 
-        <div className="text-center mt-10">
-            <p>
-              <MailIcon className="icon" />
-                www.sexygirl.ai@gmail.com
-            </p>
-        </div>
-        
         <div className="text-center mt-10">
           <Link href="/">
             <a className="bg-blue-800 hover:bg-blue-900 text-white rounded-md text-small inline-block p-3 flex-none">

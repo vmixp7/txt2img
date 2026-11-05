@@ -37,7 +37,7 @@ import { replace } from "lodash";
 export const appName = "AI美女生成";
 export const appSubtitle = "輸入中文或英文描述,創造你的AI女友";
 export const appMetaDescription =
-  "AI, text2image, txt2img, word to image, art, stable diffustion, sexy girl, beautiful girl, ai girl, genetate, chinese, 中文, 中文文生圖, 文字產生圖片, 文字產生美女圖, AI美女, AI女友";
+  "AI, free text to image, free txt2img, word to image, art, stable diffustion, sexy girl, beautiful girl, ai girl, genetate, chinese, 中文, 免費中文文生圖, 免費文生圖, 文字產生美女圖, AI美女, AI女友, image to video, img2video, AI video, minimax h3, 圖生影片, 圖片轉影片, 照片變影片, AI影片生成, 免費圖生影片";
 
 const { publicRuntimeConfig } = getConfig();
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -53,7 +53,7 @@ const promptTemplates = {
   g: "a girl wearing a black and red belly dance costume, with intricate details and a graceful pose. Her hair is pulled back in a bun and she has a serene expression on her face, standing in a serene natural setting. She is looking directly at the camera with a calm and composed expression. The cave's walls are rocky, and there are plants and foliage surrounding the water",
 };
 
-// 歷史紀錄每筆 { id, prompt, lora, shape, createdAt }, prompt 為使用者輸入的原文, 不記錄圖片
+// 歷史紀錄每筆 { id, prompt, lora, shape, createdAt, favorite }, prompt 為使用者輸入的原文, 不記錄圖片
 const HISTORY_STORAGE_KEY = "txt2img_history";
 
 export default function Home(props) {
@@ -173,9 +173,19 @@ export default function Home(props) {
     setHistory(list);
   };
 
+  const toggleFavorite = (id) => {
+    const list = history.map((h) =>
+      h.id === id ? { ...h, favorite: !h.favorite } : h,
+    );
+    saveHistory(HISTORY_STORAGE_KEY, list);
+    setHistory(list);
+  };
+
+  // 清除全部時保留最愛
   const clearHistory = () => {
-    saveHistory(HISTORY_STORAGE_KEY, []);
-    setHistory([]);
+    const list = history.filter((h) => h.favorite);
+    saveHistory(HISTORY_STORAGE_KEY, list);
+    setHistory(list);
   };
 
   const setAllowStatus = () => {
@@ -654,13 +664,14 @@ export default function Home(props) {
       <main className="max-w-[700px] mx-auto mt-8">
         {/* 新功能: 圖生影片 */}
         <Link href="/img2video">
-          <a className="flex items-center gap-3 mx-4 px-4 py-3 rounded-lg bg-[#eaf6ff] border border-blue-200 text-blue-900 no-underline hover:bg-blue-100 transition-colors">
+          <a className="flex items-center gap-3 mx-4 px-4 py-3 rounded-lg bg-[#dee6f1] border border-blue-200 text-blue-900 no-underline hover:bg-blue-100 transition-colors">
             <VideoIcon className="h-5 w-5 shrink-0" />
             <span className="flex-1 text-sm sm:text-base">
               <span className="mr-2 px-1.5 py-0.5 rounded-full bg-orange-500 text-white text-[10px] font-bold align-middle">
                 NEW
               </span>
-              新功能「圖生影片」上線! 上傳一張圖片, 讓它動起來
+              新功能「圖生影片」上線! 2027年前完全
+              <strong className="text-red-600">免費</strong>體驗
             </span>
             <ChevronRightIcon className="h-5 w-5 shrink-0" />
           </a>
@@ -1165,6 +1176,7 @@ export default function Home(props) {
           onApply={applyHistory}
           onDelete={deleteHistory}
           onClear={clearHistory}
+          onToggleFavorite={toggleFavorite}
           emptyText="還沒有紀錄,生成圖片後會自動保存描述"
         />
       </main>

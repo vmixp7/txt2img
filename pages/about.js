@@ -1,5 +1,6 @@
 import Head from "next/head";
 import Link from "next/link";
+import { Mail as MailIcon } from "lucide-react";
 import Navbar from "components/navbar";
 
 import { appName } from "./index";
@@ -164,6 +165,14 @@ export default function About() {
                 立即開始使用 →
               </a>
             </Link>
+          </div>
+
+          {/* 聯絡方式 */}
+          <div className="text-center mt-10 text-gray-700">
+            <p>
+              <MailIcon className="icon" />
+              www.sexygirl.ai@gmail.com
+            </p>
           </div>
 
         </div>
