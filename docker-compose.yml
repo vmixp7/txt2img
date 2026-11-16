@@ -31,9 +31,10 @@ services:
     volumes:
       # 資料存在 named volume, 重新部署或 rsync --delete 都不會清掉
       - txt2img-pgdata:/var/lib/postgresql/data
-    # 只綁本機, 不對外開放; 要連線管理請用 SSH tunnel
+    # 對外開放 (0.0.0.0), 請在 AWS Security Group 限制只允許自己的 IP 連 5432
+    # 注意: docker 開的 port 會繞過主機的 ufw 防火牆
     ports:
-      - "127.0.0.1:5432:5432"
+      - "0.0.0.0:5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-postgres}"]
       interval: 10s
