@@ -14,5 +14,31 @@ services:
       - NODE_ENV=production
       - NODE_OPTIONS=--max-old-space-size=256
     # 機密 (AWS 金鑰等) 放在伺服器上的 .env.local, 不會打包進映像檔
+    # DATABASE_URL 的主機填服務名稱 postgres, 例: postgres://txt2img:密碼@postgres:5432/txt2img
     env_file:
       - .env.local
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: txt2img-postgres
+    restart: unless-stopped
+    # 帳號密碼讀 .env.local 的 POSTGRES_USER / POSTGRES_PASSWORD / POSTGRES_DB
+    # (只在資料庫第一次初始化時生效, 之後改密碼要進資料庫用 ALTER USER)
+    env_file:
+      - .env.local
+    volumes:
+      # 資料存在 named volume, 重新部署或 rsync --delete 都不會清掉
+      - txt2img-pgdata:/var/lib/postgresql/data
+    # 只綁本機, 不對外開放; 要連線管理請用 SSH tunnel
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  txt2img-pgdata:

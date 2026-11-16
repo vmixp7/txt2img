@@ -1,9 +1,11 @@
-import { getReadUrl, IMG2VIDEO_PREFIX } from "lib/s3";
+import { getReadUrl, IMG2VIDEO_PREFIX, TEMPLATE_PREFIX } from "lib/s3";
 
-// 上傳到 S3 的圖片, 例如 uploads/<uuid>.png
-const UPLOAD_KEY = new RegExp(`^${IMG2VIDEO_PREFIX}[\\w-]+\\.(png|jpe?g|webp)$`);
+// 上傳到 S3 的圖片, 例如 uploads/<uuid>.png 或 templates/<uuid>.png
+const UPLOAD_KEY = new RegExp(
+  `^(${IMG2VIDEO_PREFIX}|${TEMPLATE_PREFIX})[\\w-]+\\.(png|jpe?g|webp)$`,
+);
 
-// 歷史紀錄的縮圖, 轉址到 S3 的讀取網址
+// 歷史紀錄 / 模板的縮圖, 轉址到 S3 的讀取網址
 export default async function handler(req, res) {
   const { key } = req.query;
   if (typeof key !== "string" || !UPLOAD_KEY.test(key)) {
